@@ -18,3 +18,6 @@
 ## Pages
 - Tool + FAQ: https://jliushi.github.io/settleclear/
 - Guide (how to read an Amazon settlement report and compute true profit): https://jliushi.github.io/settleclear/guide.html
+- Amazon FBA fees explained (every fee type and how it's calculated): https://jliushi.github.io/settleclear/fba-fees.html
+- How to find and appeal Amazon fee overcharges: https://jliushi.github.io/settleclear/fee-overcharges.html
+- Amazon settlement report fee-type glossary: https://jliushi.github.io/settleclear/glossary.html

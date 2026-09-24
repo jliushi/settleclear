@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Amazon Settlement Report Fee Types: Complete Glossary (amount-description reference) | SettleClear</title>
+<meta name="description" content="A complete glossary of Amazon settlement report line types — every amount-type and amount-description (Principal, Commission, FBAPerUnitFulfillmentFee, and more), what it means, and whether it counts toward profit.">
+<link rel="canonical" href="https://jliushi.github.io/settleclear/glossary.html">
+<meta property="og:title" content="Amazon Settlement Report Fee Types: Complete Glossary">
+<meta property="og:description" content="Every Amazon settlement line type explained, with whether it counts toward profit.">
+<meta property="og:url" content="https://jliushi.github.io/settleclear/glossary.html">
+<link rel="stylesheet" href="assets/style.css">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"DefinedTermSet","name":"Amazon Settlement Report Fee Types","description":"Glossary of amount-type and amount-description values in the Amazon Flat File V2 settlement report."}
+</script>
+</head>
+<body>
+<header class="site">
+  <a class="brand" href="./">Settle<span>Clear</span></a>
+  <nav><a href="./#tool">Tool</a><a href="guide.html">Guide</a><a href="./#faq">FAQ</a></nav>
+</header>
+<main>
+<article class="how" style="border:0">
+<h1>Amazon settlement report fee types: a complete glossary</h1>
+<p class="lede">Every line in the Amazon Flat File V2 settlement report carries an <code>amount-type</code> and an <code>amount-description</code>. This glossary explains what each means and whether it counts toward your profit. It's the mapping SettleClear uses when it classifies your report — anything it can't match is flagged, never silently dropped.</p>
+
+<h2>Revenue lines (count as income)</h2>
+<table>
+<thead><tr><th>Line</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td>Principal</td><td>The item price the buyer paid. Your gross revenue.</td></tr>
+<tr><td>Shipping</td><td>Shipping charged to the buyer (FBM).</td></tr>
+<tr><td>GiftWrap</td><td>Gift-wrap charged to the buyer.</td></tr>
+<tr><td>ShippingChargeback / GiftwrapChargeback</td><td>Adjustments to the above.</td></tr>
+</tbody>
+</table>
+
+<h2>Fee lines (reduce profit)</h2>
+<table>
+<thead><tr><th>Line</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td>Commission</td><td>Referral fee — Amazon's percentage cut of the sale.</td></tr>
+<tr><td>FBAPerUnitFulfillmentFee</td><td>Per-unit pick, pack and ship for FBA.</td></tr>
+<tr><td>FBAStorageFee</td><td>Monthly storage by cubic foot.</td></tr>
+<tr><td>FBALongTermStorageFee</td><td>Surcharge on aged inventory.</td></tr>
+<tr><td>RefundCommission</td><td>Portion of referral fee returned on a refund (positive).</td></tr>
+<tr><td>Cost of Advertising</td><td>Sponsored ads spend that appears in the settlement.</td></tr>
+<tr><td>VariableClosingFee / FixedClosingFee</td><td>Per-item closing fees (media, BMVD categories).</td></tr>
+</tbody>
+</table>
+
+<h2>Promotion lines (reduce profit)</h2>
+<table>
+<thead><tr><th>Line</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td>Promotion → Principal / Shipping</td><td>Coupons and deal discounts you funded.</td></tr>
+</tbody>
+</table>
+
+<h2>Tax lines (pass-through — exclude from profit)</h2>
+<table>
+<thead><tr><th>Line</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td>Tax / ShippingTax / GiftWrapTax</td><td>Sales tax collected from the buyer.</td></tr>
+<tr><td>MarketplaceFacilitatorTax-*</td><td>Tax Amazon withholds and remits on your behalf. Nets to ~zero against the collected amount.</td></tr>
+</tbody>
+</table>
+
+<p>These net out and should never be counted as margin — a frequent spreadsheet error. See how it all combines into <a href="guide.html">true profit per SKU</a>, or <a href="./#tool">run your own report</a>.</p>
+</article>
+</main>
+<footer class="site"><p>SettleClear is free and open source. Not affiliated with Amazon. Amazon may rename or add line types; unmatched lines are flagged in the tool for review.</p></footer>
+</body>
+</html>
