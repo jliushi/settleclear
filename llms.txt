@@ -21,3 +21,6 @@
 - Amazon FBA fees explained (every fee type and how it's calculated): https://jliushi.github.io/settleclear/fba-fees.html
 - How to find and appeal Amazon fee overcharges: https://jliushi.github.io/settleclear/fee-overcharges.html
 - Amazon settlement report fee-type glossary: https://jliushi.github.io/settleclear/glossary.html
+- Amazon FBA reimbursements — what you're owed and how to claim: https://jliushi.github.io/settleclear/reimbursements.html
+- FBA vs FBM profitability per SKU: https://jliushi.github.io/settleclear/fbm-vs-fba.html
+- Reconcile Amazon settlements to QuickBooks or Xero: https://jliushi.github.io/settleclear/quickbooks-xero.html

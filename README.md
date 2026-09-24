@@ -19,5 +19,8 @@ python -m http.server 8000   # then open http://localhost:8000
 
 Files: `index.html` (tool + FAQ), `guide.html` (SEO/GEO content), `assets/app.js` (parser + compute), `assets/style.css`.
 
+## Monetisation (dormant by default)
+Revenue channels are pre-wired but off. In `assets/app.js`, the `CONFIG` object at the top has three empty fields — `supportUrl`, `proWaitlistUrl`, `affiliateTag`. Paste a value into any one and that channel activates on next load (a support link, a Pro CTA). Nothing renders while they're empty, so no dead links ship. Receiving money still requires you to create the destination account (e.g. Ko-fi, a form, Amazon Associates) — that's the only step the code can't do for you.
+
 ## License
 MIT. Not affiliated with Amazon.

@@ -38,4 +38,21 @@ const wbUnits = res.list.find((o) => o.sku === "WIDGET-BLUE").units;
 ok(wbUnits === 40, "WIDGET-BLUE counts 40 sold units (not per-fee-line), got " + wbUnits);
 ok(Math.abs(res.totals.profit - 149.58) < 0.01, "total net profit 149.58, got " + res.totals.profit.toFixed(2));
 console.log("\nTotals:", { revenue: res.totals.revenue.toFixed(2), fees: res.totals.fee.toFixed(2), profit: res.totals.profit.toFixed(2) });
+
+// --- extended classify coverage (hardened parser) ---
+ok(classify("other-transaction", "StorageRenewalBilling") === "fee", "storage renewal is a fee");
+ok(classify("ServiceFee", "Subscription") === "fee", "subscription is a fee");
+ok(classify("other-transaction", "FBAInboundTransportationFee") === "fee", "inbound transport is a fee");
+ok(classify("other-transaction", "Current reserve amount") === "tax", "reserve is excluded (pass-through)");
+ok(classify("ItemFees", "FixedClosingFee") === "fee", "closing fee is a fee");
+ok(classify("ItemPrice", "Principal") === "revenue", "principal is revenue");
+ok(classify("", "") === "skip", "blank line skipped");
+
+// reserve must not change profit but must stay in the deposit reconciliation
+const withReserve = parseDelimited(csv + "\n90210,USD,,other-transaction,,,,other-transaction,Current reserve amount,-50.00").rows;
+const r2 = compute(withReserve, {});
+ok(Math.abs(r2.grand - 723.58) < 0.01, "reserve moves the deposit (grand 723.58), got " + r2.grand.toFixed(2));
+const baseNoCogs = compute(parseDelimited(csv).rows, {}).totals.profit;
+ok(Math.abs(r2.totals.profit - baseNoCogs) < 0.01, "reserve does NOT change profit, got " + r2.totals.profit.toFixed(2) + " vs " + baseNoCogs.toFixed(2));
+
 process.exit(fail ? 1 : 0);

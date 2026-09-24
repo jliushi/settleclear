@@ -2,6 +2,15 @@
    No network calls. Everything below runs in the visitor's browser. */
 (function () {
   "use strict";
+
+  // --- Monetisation config. All empty by default → nothing renders (no dead links).
+  //     Paste a value in later to switch a channel on; no other change needed. ---
+  const CONFIG = {
+    affiliateTag: "",     // Amazon Associates tag, e.g. "yourtag-20" (used by future prep-service links)
+    supportUrl: "",       // e.g. a Ko-fi / Buy Me a Coffee page URL
+    proWaitlistUrl: "",   // e.g. a form or mailto: for a paid multi-platform / saved-history tier
+  };
+
   const $ = (s) => document.querySelector(s);
   const money = (n, c) => (n < 0 ? "-" : "") + (c || "$") + Math.abs(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -31,17 +40,23 @@
   }
 
   // --- Classify a settlement line into a profit bucket. ---
+  // Buckets: revenue (income), fee (cost), promo (cost), tax (pass-through, excluded
+  // from profit), other (unrecognised — still counted in net, and surfaced in the audit).
   function classify(type, desc) {
     const t = (type || "").toLowerCase(), d = (desc || "").toLowerCase();
-    if (t === "itemprice" || t === "componentprice") {
-      if (d.includes("tax")) return "tax";
-      return "revenue";
-    }
-    if (t === "itemfees") return "fee";
+    if (!t && !d) return "skip";
+    // Pass-through amounts that must NOT count as profit: facilitated tax and reserve timing.
+    if (t.includes("withheldtax") || d.includes("marketplacefacilitator") || d.includes("withheldtax")) return "tax";
+    if (d.includes("reserve")) return "tax";
+    if (t === "itemprice" || t === "componentprice") return d.includes("tax") ? "tax" : "revenue";
     if (t === "promotion") return "promo";
-    if (t === "itemwithheldtax" || d.includes("marketplacefacilitator")) return "tax";
-    if (d.includes("advertis") || d.includes("cost of advertising")) return "fee";
-    if (d.includes("refund") && d.includes("commission")) return "fee";
+    if (t === "itemfees") return "fee";
+    if (d.includes("tax")) return "tax";
+    // other-transaction / servicefee style rows keyed off the description.
+    const feeWords = ["fee", "commission", "advertis", "storage", "fulfillment", "fulfilment",
+      "fba", "shippinglabel", "inbound", "transport", "subscription", "disposal",
+      "removal", "restock", "chargeback", "adjustment", "service", "liquidation"];
+    if (feeWords.some((w) => d.includes(w))) return "fee";
     if (d) return "other";
     return "skip";
   }
@@ -144,6 +159,16 @@
     return;
   }
   const drop = $("#drop");
+
+  // Render monetisation links only if a channel is configured (dormant by default).
+  (function renderMonetization() {
+    const foot = document.querySelector("footer.site");
+    if (!foot) return;
+    const bits = [];
+    if (CONFIG.supportUrl) bits.push(`<a href="${CONFIG.supportUrl}" rel="noopener">♥ Support this free tool</a>`);
+    if (CONFIG.proWaitlistUrl) bits.push(`<a class="btn" href="${CONFIG.proWaitlistUrl}" rel="noopener">Get Pro: multi-platform + saved history</a>`);
+    if (bits.length) { const p = document.createElement("p"); p.innerHTML = bits.join(" · "); foot.prepend(p); }
+  })();
   ["dragover", "dragenter"].forEach((e) => drop.addEventListener(e, (ev) => { ev.preventDefault(); drop.classList.add("drag"); }));
   ["dragleave", "drop"].forEach((e) => drop.addEventListener(e, () => drop.classList.remove("drag")));
   drop.addEventListener("drop", (ev) => { ev.preventDefault(); if (ev.dataTransfer.files[0]) handleFile(ev.dataTransfer.files[0]); });
