@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How to read an Amazon settlement report and calculate true profit per SKU | SettleClear</title>
+<meta name="description" content="A plain-English guide to the Amazon Flat File V2 settlement report: what each fee type means, how to reconcile line items to your deposit, and how to compute true profit per SKU after all fees and COGS.">
+<link rel="canonical" href="https://jliushi.github.io/settleclear/guide.html">
+<meta property="og:title" content="How to read an Amazon settlement report and calculate true profit per SKU">
+<meta property="og:description" content="Plain-English guide to Amazon settlement fee types and computing true profit per SKU.">
+<meta property="og:url" content="https://jliushi.github.io/settleclear/guide.html">
+<link rel="stylesheet" href="assets/style.css">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"HowTo","name":"Calculate true Amazon profit per SKU from a settlement report","step":[{"@type":"HowToStep","name":"Download the settlement report","text":"In Seller Central go to Reports → Payments → Date Range Reports and download the Flat File V2 settlement report."},{"@type":"HowToStep","name":"Classify each fee line","text":"Group lines by SKU and bucket amount types into revenue, fees, promotions, tax and refunds."},{"@type":"HowToStep","name":"Subtract COGS","text":"Subtract per-unit cost of goods to convert net proceeds into net profit."},{"@type":"HowToStep","name":"Reconcile","text":"Confirm the sum of all line items equals the settlement deposit total."}]}
+</script>
+</head>
+<body>
+<header class="site">
+  <a class="brand" href="./">Settle<span>Clear</span></a>
+  <nav><a href="./#tool">Tool</a><a href="guide.html">Guide</a><a href="./#faq">FAQ</a></nav>
+</header>
+<main>
+<article class="how" style="border:0">
+<h1>How to read an Amazon settlement report and calculate true profit per SKU</h1>
+<p class="lede">Your Seller Central dashboard shows sales. It does not show profit. Between a sale and the money hitting your bank, Amazon subtracts more than 40 different fee types. This guide explains the <strong>Flat File V2 settlement report</strong> field by field, then shows how to turn it into real profit per SKU. When you're ready, drop the file into the <a href="./#tool">free SettleClear tool</a> — it does all of this in your browser.</p>
+
+<h2>Where to get the report</h2>
+<p>Seller Central → <strong>Reports → Payments → Date Range Reports</strong>. Request a report for a settlement period and download the <em>Flat File V2</em> version. It is a tab- or comma-delimited text file with one row per financial event.</p>
+
+<h2>The columns that matter</h2>
+<ul>
+<li><code>transaction-type</code> — Order, Refund, or an adjustment type.</li>
+<li><code>sku</code> — the seller SKU the line belongs to.</li>
+<li><code>amount-type</code> — the family of the amount: <code>ItemPrice</code>, <code>ItemFees</code>, <code>Promotion</code>, <code>ItemWithheldTax</code>, and others.</li>
+<li><code>amount-description</code> — the specific line, e.g. <code>Principal</code>, <code>Commission</code>, <code>FBAPerUnitFulfillmentFee</code>.</li>
+<li><code>amount</code> — signed value. Revenue is positive; fees and refunds are negative.</li>
+<li><code>quantity-purchased</code> — units, used to allocate per-unit COGS.</li>
+<li><code>total-amount</code> — appears once in the header row: the deposit that reached your bank.</li>
+</ul>
+
+<h2>Fee types, in plain English</h2>
+<ul>
+<li><strong>Principal</strong> — the item price the buyer paid. This is your gross revenue.</li>
+<li><strong>Commission (referral fee)</strong> — Amazon's cut, typically 8–15% of price by category.</li>
+<li><strong>FBAPerUnitFulfillmentFee</strong> — pick, pack and ship per unit for FBA.</li>
+<li><strong>FBAStorageFee / FBALongTermStorageFee</strong> — monthly and aged-inventory storage.</li>
+<li><strong>Tax / MarketplaceFacilitatorTax</strong> — sales tax collected then withheld; a pass-through that nets to roughly zero and should <em>not</em> count as profit.</li>
+<li><strong>Promotion</strong> — coupons and deal discounts you funded.</li>
+<li><strong>Cost of Advertising</strong> — Sponsored Products spend; often billed separately, which is why it's easy to forget in a spreadsheet.</li>
+<li><strong>RefundCommission</strong> — the portion of the referral fee Amazon returns on a refund (a positive line).</li>
+</ul>
+
+<h2>The formula</h2>
+<p>For each SKU:</p>
+<p><code>net proceeds = Principal + shipping − referral − FBA fees − storage − promotions − refunds + reimbursements</code><br>
+<code>true net profit = net proceeds − (per-unit COGS × units)</code></p>
+<p>Exclude marketplace-facilitated tax — it isn't yours to keep or lose.</p>
+
+<h2>Always reconcile</h2>
+<p>The sum of every line's <code>amount</code> should equal the <code>total-amount</code> deposit. If it doesn't, a fee was miscategorised or a line was missed — and any per-SKU profit built on top is wrong. SettleClear checks this automatically and flags the gap, plus any fee description it can't classify, instead of quietly averaging it away.</p>
+
+<p><a class="btn" href="./#tool">Try it with your report →</a></p>
+</article>
+</main>
+<footer class="site"><p>SettleClear is free and open source. Not affiliated with Amazon.</p></footer>
+</body>
+</html>

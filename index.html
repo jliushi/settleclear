@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SettleClear — Free Amazon Settlement Profit &amp; Fee Audit Tool (runs in your browser)</title>
+<meta name="description" content="Drop your Amazon settlement report and see true profit per SKU after every fee, plus a fee audit that flags overcharges. 100% in your browser — your data never leaves your computer. Free, no signup.">
+<link rel="canonical" href="https://jliushi.github.io/settleclear/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="SettleClear — Free Amazon Settlement Profit & Fee Audit">
+<meta property="og:description" content="See true profit per SKU after every Amazon fee and catch overcharges. Runs entirely in your browser. Free, no signup, no upload.">
+<meta property="og:url" content="https://jliushi.github.io/settleclear/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="robots" content="index,follow">
+<link rel="stylesheet" href="assets/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "name": "SettleClear",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web browser",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "description": "Free browser-based tool that turns an Amazon settlement report into true profit per SKU after every fee, with a fee audit that flags overcharges. Runs entirely client-side; no data is uploaded.",
+      "url": "https://jliushi.github.io/settleclear/"
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "Is my Amazon data uploaded anywhere?", "acceptedAnswer": { "@type": "Answer", "text": "No. SettleClear is 100% client-side. Your settlement file is parsed in your own browser and never sent to any server." } },
+        { "@type": "Question", "name": "How is true Amazon profit per SKU calculated?", "acceptedAnswer": { "@type": "Answer", "text": "Net proceeds per SKU equal product charges minus Amazon fees (referral, FBA, storage, refund admin) minus promo rebates minus refunds plus reimbursements. Adding per-unit COGS yields net profit." } },
+        { "@type": "Question", "name": "What does the fee audit flag?", "acceptedAnswer": { "@type": "Answer", "text": "Rows where order and settlement amounts do not reconcile, fee lines that cannot be classified, and SKUs that lose money after all fees and COGS." } }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site">
+  <a class="brand" href="./">Settle<span>Clear</span></a>
+  <nav>
+    <a href="#tool">Tool</a>
+    <a href="guide.html">Guide</a>
+    <a href="#faq">FAQ</a>
+    <a class="ghlink" href="https://github.com/jliushi/settleclear" rel="noopener">Source</a>
+  </nav>
+</header>
+
+<main>
+<section class="hero">
+  <h1>Know your <em>real</em> Amazon profit — after every fee.</h1>
+  <p class="lede">Drop your Amazon <strong>settlement report</strong> and get profit per SKU after referral, FBA, storage, ads, refunds and reimbursements — plus a <strong>fee audit</strong> that flags rows that don't add up. Everything runs in your browser. Your data never leaves your computer.</p>
+  <p class="badges"><span>100% client-side</span><span>No signup</span><span>No upload</span><span>Free</span></p>
+</section>
+
+<section id="tool" class="tool">
+  <div class="drop" id="drop">
+    <p class="drop-title">Drop your Amazon settlement report here</p>
+    <p class="drop-sub">Seller Central → Reports → Payments → Date Range Reports. CSV, TXT or TSV. Nothing is uploaded.</p>
+    <input type="file" id="file" accept=".csv,.txt,.tsv" hidden>
+    <div class="drop-actions">
+      <button class="btn" id="pick">Choose file</button>
+      <button class="btn ghost" id="demo">Try with sample data</button>
+    </div>
+  </div>
+
+  <div class="cogs" id="cogs" hidden>
+    <label>Optional: paste your per-unit cost of goods (COGS) as <code>SKU,cost</code> per line to get net profit.
+      <textarea id="cogsInput" rows="3" placeholder="MY-SKU-1,4.20&#10;MY-SKU-2,11.00"></textarea>
+    </label>
+    <button class="btn" id="apply">Recompute with COGS</button>
+  </div>
+
+  <div id="summary" class="summary" hidden></div>
+  <div id="alerts" class="alerts" hidden></div>
+  <div id="tableWrap" class="table-wrap" hidden>
+    <div class="table-bar">
+      <input type="search" id="search" placeholder="Filter by SKU…">
+      <button class="btn ghost" id="export">Export profit-by-SKU CSV</button>
+    </div>
+    <table id="table"><thead></thead><tbody></tbody></table>
+  </div>
+</section>
+
+<section class="how">
+  <h2>Why your Seller Central number isn't your profit</h2>
+  <p>Amazon deducts 40+ fee types from every payout — referral fees, FBA fulfillment, weight handling, monthly and long-term storage, refund administration, and advertising you paid separately. The summary shows revenue; the settlement report holds the real deductions. SettleClear reads the settlement line by line, classifies every fee, joins your cost of goods, and shows what you actually keep per SKU — then flags the rows that don't reconcile so a clean-looking sheet never hides a silent gap.</p>
+  <ol class="steps">
+    <li><strong>Download</strong> the Flat File V2 settlement report from Seller Central.</li>
+    <li><strong>Drop it in</strong> — parsing happens in your browser, nothing is uploaded.</li>
+    <li><strong>Add COGS</strong> (optional) to turn gross into true net profit per SKU.</li>
+    <li><strong>Review the audit</strong> — negative-margin SKUs and unclassified fee lines are flagged.</li>
+  </ol>
+</section>
+
+<section id="faq" class="faq">
+  <h2>FAQ</h2>
+  <details open><summary>Is my data uploaded anywhere?</summary><p>No. SettleClear is 100% client-side JavaScript. Your settlement file is parsed in your own browser and never sent to any server. You can disconnect from the internet after the page loads and it still works.</p></details>
+  <details><summary>Which report do I upload?</summary><p>The Amazon <strong>Flat File V2 Settlement Report</strong>: Seller Central → Reports → Payments → Date Range Reports. It is tab- or comma-delimited (.txt / .csv). SettleClear auto-detects the delimiter.</p></details>
+  <details><summary>How is true profit calculated?</summary><p>Net proceeds per SKU = product charges − Amazon fees (referral, FBA, storage, refund admin, etc.) − promotional rebates − refunds + reimbursements. If you add per-unit COGS, that is subtracted to give net profit. Every number traces back to lines in your own report.</p></details>
+  <details><summary>What does the fee audit flag?</summary><p>Rows where order and settlement amounts don't reconcile, fee lines the parser can't classify (so they're never silently averaged away), and SKUs that lose money once all fees and COGS are counted.</p></details>
+  <details><summary>Does it cost anything?</summary><p>The tool is free. It's open source — you can read exactly what it does on GitHub.</p></details>
+</section>
+
+</main>
+
+<footer class="site">
+  <p>SettleClear is a free, open-source tool. It is not affiliated with Amazon. All processing happens locally in your browser.</p>
+  <p><a href="guide.html">Guide</a> · <a href="https://github.com/jliushi/settleclear" rel="noopener">GitHub</a></p>
+</footer>
+
+<script src="assets/app.js"></script>
+</body>
+</html>

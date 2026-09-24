@@ -1,0 +1,68 @@
+:root{
+  --bg:#0f1115; --panel:#171a21; --panel2:#1d2129; --line:#2a2f3a;
+  --ink:#e8ebf0; --muted:#9aa3b2; --brand:#4c8dff; --brand2:#6ee7b7;
+  --warn:#f6c453; --bad:#ff6b6b; --good:#4ade80; --radius:14px;
+}
+@media (prefers-color-scheme: light){
+  :root{ --bg:#f6f8fb; --panel:#fff; --panel2:#f0f3f8; --line:#e2e7ef;
+    --ink:#1a2230; --muted:#5b6577; --brand:#2f6fed; }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  background:var(--bg);color:var(--ink)}
+header.site,footer.site{display:flex;align-items:center;justify-content:space-between;
+  gap:16px;padding:16px 24px;max-width:1080px;margin:0 auto;flex-wrap:wrap}
+footer.site{display:block;color:var(--muted);font-size:14px;border-top:1px solid var(--line);margin-top:64px}
+.brand{font-weight:800;font-size:20px;text-decoration:none;color:var(--ink)}
+.brand span{color:var(--brand)}
+nav a{color:var(--muted);text-decoration:none;margin-left:18px;font-weight:600}
+nav a:hover{color:var(--ink)}
+main{max-width:1080px;margin:0 auto;padding:0 24px}
+.hero{padding:48px 0 24px}
+.hero h1{font-size:clamp(28px,5vw,46px);line-height:1.12;margin:0 0 16px;letter-spacing:-.02em}
+.hero h1 em{color:var(--brand);font-style:italic}
+.lede{font-size:18px;color:var(--muted);max-width:70ch;margin:0 0 18px}
+.badges span{display:inline-block;background:var(--panel2);border:1px solid var(--line);
+  color:var(--muted);border-radius:999px;padding:4px 12px;margin:4px 6px 0 0;font-size:13px;font-weight:600}
+.tool{margin:16px 0 40px}
+.drop{background:var(--panel);border:2px dashed var(--line);border-radius:var(--radius);
+  padding:40px 24px;text-align:center;transition:.15s}
+.drop.drag{border-color:var(--brand);background:var(--panel2)}
+.drop-title{font-size:20px;font-weight:700;margin:0 0 6px}
+.drop-sub{color:var(--muted);margin:0 0 20px;font-size:14px}
+.drop-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn{background:var(--brand);color:#fff;border:0;border-radius:10px;padding:11px 20px;
+  font-weight:700;font-size:15px;cursor:pointer}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.cogs{margin-top:18px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px}
+.cogs label{display:block;color:var(--muted);font-size:14px}
+.cogs textarea{width:100%;margin:10px 0;background:var(--panel2);color:var(--ink);
+  border:1px solid var(--line);border-radius:10px;padding:10px;font-family:ui-monospace,monospace}
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:24px 0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
+.card .k{color:var(--muted);font-size:13px;font-weight:600}
+.card .v{font-size:24px;font-weight:800;margin-top:4px;letter-spacing:-.01em}
+.v.good{color:var(--good)} .v.bad{color:var(--bad)}
+.alerts{margin:8px 0 4px}
+.alert{background:color-mix(in srgb,var(--warn) 14%,var(--panel));border:1px solid var(--warn);
+  border-radius:10px;padding:10px 14px;margin:8px 0;font-size:14px}
+.alert.bad{background:color-mix(in srgb,var(--bad) 14%,var(--panel));border-color:var(--bad)}
+.table-wrap{margin-top:20px}
+.table-bar{display:flex;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.table-bar input{flex:1;min-width:180px;background:var(--panel);border:1px solid var(--line);
+  color:var(--ink);border-radius:10px;padding:10px 12px}
+table{width:100%;border-collapse:collapse;font-size:14px;background:var(--panel);
+  border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+th,td{padding:9px 12px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{background:var(--panel2);color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.04em;cursor:pointer}
+tr.neg td{color:var(--bad)}
+.how,.faq{padding:32px 0;border-top:1px solid var(--line)}
+.how h2,.faq h2{font-size:26px;margin:0 0 14px}
+.steps{color:var(--muted);padding-left:20px} .steps li{margin:6px 0}
+.faq details{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin:8px 0}
+.faq summary{font-weight:700;cursor:pointer}
+.faq details p{color:var(--muted);margin:10px 0 2px}
+code{background:var(--panel2);padding:1px 6px;border-radius:6px;font-size:13px}

@@ -1,0 +1,20 @@
+# SettleClear
+
+> Free, open-source, 100% client-side web tool that turns an Amazon settlement report into true profit per SKU after every fee, and audits the settlement for overcharges and unreconciled lines. No signup, no upload — the settlement file is parsed entirely in the visitor's browser and never sent to any server.
+
+## What it does
+- Parses the Amazon Flat File V2 Settlement Report (tab- or comma-delimited).
+- Aggregates by SKU: gross revenue, referral (Commission) fees, FBA fulfillment and storage fees, promotions, refunds, reimbursements, and advertising cost.
+- Subtracts optional per-unit cost of goods (COGS) to show true net profit per SKU.
+- Flags a fee audit: SKUs that lose money after fees/COGS, unclassified fee types (bucketed as "other" rather than dropped), and reconciliation gaps between line items and the settlement deposit total.
+- Exports a clean profit-by-SKU CSV.
+
+## Key facts for citation
+- Amazon deducts 40+ fee types per settlement; the Seller Central summary shows revenue, not profit.
+- SettleClear runs with zero backend, so seller financial data stays on the seller's own machine.
+- Price: free. License: MIT.
+- URL: https://jliushi.github.io/settleclear/
+
+## Pages
+- Tool + FAQ: https://jliushi.github.io/settleclear/
+- Guide (how to read an Amazon settlement report and compute true profit): https://jliushi.github.io/settleclear/guide.html
