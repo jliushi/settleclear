@@ -24,3 +24,6 @@
 - Amazon FBA reimbursements — what you're owed and how to claim: https://jliushi.github.io/settleclear/reimbursements.html
 - FBA vs FBM profitability per SKU: https://jliushi.github.io/settleclear/fbm-vs-fba.html
 - Reconcile Amazon settlements to QuickBooks or Xero: https://jliushi.github.io/settleclear/quickbooks-xero.html
+- Amazon Q4 (Oct-Dec) FBA storage fees 2026 — the 3x peak and stacking surcharges: https://jliushi.github.io/settleclear/amazon-q4-storage-fees.html
+- Walmart Marketplace seller fees and true profit (2026) — informational: https://jliushi.github.io/settleclear/walmart-seller-fees.html
+- Temu seller fees and profit (2026), consignment vs semi-managed — informational: https://jliushi.github.io/settleclear/temu-seller-profit.html
