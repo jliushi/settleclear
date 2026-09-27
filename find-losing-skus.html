@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Find Money-Losing Amazon SKUs From Your Settlement | SettleClear</title>
+<meta name="description" content="Revenue hides losers. Learn how to find money-losing Amazon SKUs by counting every fee plus per-unit COGS against each product, straight from your settlement.">
+<link rel="canonical" href="https://jliushi.github.io/settleclear/find-losing-skus.html">
+<meta property="og:title" content="How to Find Money-Losing SKUs on Amazon From Your Settlement">
+<meta property="og:description" content="A settlement can look profitable overall while individual SKUs quietly lose money. Here is a step-by-step method to find and fix the losers.">
+<meta property="og:url" content="https://jliushi.github.io/settleclear/find-losing-skus.html">
+<link rel="stylesheet" href="assets/style.css">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"HowTo","name":"How to find money-losing SKUs on Amazon from your settlement report","description":"A step-by-step method to find which Amazon SKUs lose money once every fee and per-unit COGS is counted against them.","step":[{"@type":"HowToStep","name":"Export the settlement report","text":"Download the Flat File V2 settlement report from Seller Central."},{"@type":"HowToStep","name":"Compute net profit per SKU","text":"Run the report through SettleClear to get net proceeds per SKU after every fee."},{"@type":"HowToStep","name":"Add per-unit COGS","text":"Add your cost of goods sold per unit to turn net proceeds into true net profit."},{"@type":"HowToStep","name":"Sort ascending and read the losers","text":"Sort by true net profit ascending and read the negative rows the tool flags."},{"@type":"HowToStep","name":"Identify the dominant fee and act","text":"For each loser, find which fee dominates and act: reprice, cut ad spend, switch to FBM, liquidate aged stock, or fix a wrong size tier."}],"author":{"@type":"Organization","name":"SettleClear"},"mainEntityOfPage":"https://jliushi.github.io/settleclear/find-losing-skus.html"}
+</script>
+</head>
+<body>
+<header class="site">
+  <a class="brand" href="./">Settle<span>Clear</span></a>
+  <nav><a href="./#tool">Tool</a><a href="guide.html">Guide</a><a href="./#faq">FAQ</a></nav>
+</header>
+<main>
+<article class="how" style="border:0">
+<h1>How to find money-losing SKUs on Amazon from your settlement</h1>
+<p class="lede">A store can post healthy total revenue and still be quietly bleeding money on individual products. Revenue only tells you what came in; it says nothing about what each SKU cost you in fees and inventory. Once you subtract every Amazon deduction and your own cost of goods, some SKUs turn negative — and they are almost never the ones you would guess. This page is a method, not a rate card, for finding those losers in the one document that already lists what Amazon actually charged you: your settlement report. To run it on your own numbers, drop your report into the <a href="./#tool">free SettleClear tool</a>.</p>
+
+<h2>Why revenue hides losers</h2>
+<p>The problem with judging a SKU by its sales is that the deductions arrive scattered across the settlement — a referral fee here, a fulfillment fee there, a storage line weeks later, a refund and its admin fee in a different period. No single column shows you the product's real bottom line. True net profit for a SKU is the full stack:</p>
+<p><strong>True net profit per SKU = product charges &minus; referral (Commission) &minus; FBA fulfillment &minus; storage &minus; promotions &minus; refunds + reimbursements &minus; your per-unit COGS.</strong></p>
+<p>Add up only the first item and a SKU looks great. Add up all of them and a product selling well can land below zero. That gap between revenue and true net profit is where the losers hide, and it is why a healthy-looking settlement can still contain products you would be better off dropping.</p>
+
+<h2>The hidden killers that flip a SKU negative</h2>
+<p>A handful of costs are responsible for most negative SKUs. They tend to be underweighted or missed entirely in hand-built spreadsheets. Exact rates change and differ by product, so each of these has a dedicated page — the point here is to know what to look for.</p>
+<table>
+<thead><tr><th>Hidden killer</th><th>Why it flips a SKU</th><th>Where to check rates</th></tr></thead>
+<tbody>
+<tr><td>Q4 storage and aged inventory</td><td>Storage roughly triples in Q4, and an aged-inventory surcharge starts at day 181 and stacks on top of monthly storage. Slow SKUs held through the peak get hit hardest.</td><td><a href="amazon-q4-storage-fees.html">Q4 storage fees</a></td></tr>
+<tr><td>Low-inventory-level fee</td><td>Thin, fast-moving SKUs kept in short supply can draw a per-unit fee that eats a small margin.</td><td><a href="amazon-low-inventory-fee.html">Low-inventory fee</a></td></tr>
+<tr><td>Inbound placement fee</td><td>A charge for how you send stock into the network adds a per-unit cost that spreadsheets rarely allocate back to the SKU.</td><td><a href="amazon-inbound-placement-fee.html">Inbound placement fee</a></td></tr>
+<tr><td>Advertising</td><td>Ad spend is usually billed outside the settlement, so a SKU that looks fine in the settlement can still be losing money once its ad cost is added.</td><td>&mdash;</td></tr>
+<tr><td>Returns and refund admin fees</td><td>Refunds reverse the sale and can carry an admin fee, so a high-return SKU costs more than its gross sales suggest.</td><td><a href="glossary.html">Fee glossary</a></td></tr>
+<tr><td>Fee overcharges / wrong size tier</td><td>A product measured or classified into the wrong size tier is overbilled on fulfillment on every single unit.</td><td><a href="fee-overcharges.html">Fee overcharges</a></td></tr>
+</tbody>
+</table>
+<p>The advertising line deserves emphasis: because it typically sits outside the settlement file, a SKU can pass a settlement-only audit and still be unprofitable. Fold your ad spend per SKU in before you call a product a winner.</p>
+
+<h2>The method, step by step</h2>
+<p>The settlement report already contains what Amazon charged. The work is turning it from a flat transaction list into a per-SKU profit ranking, then adding the one number Amazon does not know — your cost of goods.</p>
+<ol class="steps">
+<li><strong>Export the Flat File V2 settlement.</strong> In Seller Central, download the settlement report in the Flat File V2 format. This is the tab-delimited version SettleClear parses.</li>
+<li><strong>Run it through SettleClear to get net profit per SKU.</strong> The tool groups every transaction by SKU and nets out each fee category, so you get net proceeds per product after referral, fulfillment, storage, promotions, refunds, and reimbursements.</li>
+<li><strong>Add per-unit COGS.</strong> Net proceeds are still not profit until you subtract what each unit cost you to source and ship in. Add your per-unit COGS to convert net proceeds into true net profit.</li>
+<li><strong>Sort ascending and read the negative rows.</strong> Sort by true net profit from lowest up. The tool flags negative-margin SKUs and any unclassified fee lines, so the losers surface at the top of the list rather than being averaged away by your winners.</li>
+<li><strong>For each loser, find the dominant fee and act.</strong> Open the worst rows and see which line dominates the loss, then match the fix to the cause: reprice if the margin is simply too thin, cut ad spend if advertising is the drain, switch to FBM if fulfillment is the killer, liquidate aged stock if storage and aged-inventory surcharges are stacking, or fix a wrong size tier if you are being overbilled on fulfillment.</li>
+</ol>
+
+<h2>What SettleClear does with the file</h2>
+<p>SettleClear reads your Flat File V2 settlement entirely in your browser. Nothing is uploaded — the data never leaves your machine. It nets every fee to net proceeds per SKU, flags negative-margin SKUs and fee lines it cannot classify, and exports a per-SKU CSV you can drop your COGS into. It is free.</p>
+<ul>
+<li>Per-SKU net proceeds after every fee category in the settlement.</li>
+<li>Negative-margin SKUs and unclassified fee lines flagged for review.</li>
+<li>A per-SKU CSV export for adding COGS and ad spend offline.</li>
+</ul>
+
+<h2>Turning a loser back into a winner</h2>
+<p>Finding the loser is only half the job; the fix depends on which fee dominates. If storage and the aged-inventory surcharge are the drain, aging stock is the target — see <a href="amazon-q4-storage-fees.html">Q4 storage fees</a> for how those surcharges stack past day 181. If fulfillment is eating the margin, weigh <a href="fba-fees.html">how each FBA fee is calculated</a> and whether the SKU belongs on FBM. If the fulfillment number looks too high for the product's size, you may be in the wrong size tier — check <a href="fee-overcharges.html">fee overcharges</a>. Thin fast-movers may be paying the <a href="amazon-low-inventory-fee.html">low-inventory-level fee</a>, and every inbound shipment may carry an <a href="amazon-inbound-placement-fee.html">inbound placement fee</a> worth allocating back to the SKU. Rates change and sources differ, so confirm current figures in Seller Central before you model a fix.</p>
+
+<p>Related: <a href="fba-fees.html">every FBA fee type and how it's calculated</a> · <a href="fee-overcharges.html">catch fee overcharges</a> · <a href="glossary.html">fee glossary</a> · <a href="guide.html">the full settlement guide</a>.</p>
+<p><a class="btn" href="./#tool">Find your losing SKUs</a></p>
+</article>
+</main>
+<footer class="site"><p>SettleClear is free and open source. Not affiliated with Amazon, Walmart, or Temu. General information, not tax, legal, or accounting advice. Fee rates change and sources differ — verify current rates in Seller Central against your own settlement report.</p></footer>
+</body>
+</html>

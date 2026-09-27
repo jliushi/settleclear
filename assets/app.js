@@ -12,6 +12,8 @@
   };
 
   const $ = (s) => document.querySelector(s);
+  // Expose config so standalone pages (e.g. pro.html) can read it without duplicating it.
+  if (typeof window !== "undefined") window.SETTLECLEAR = CONFIG;
   const money = (n, c) => (n < 0 ? "-" : "") + (c || "$") + Math.abs(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   // --- Parse a delimited settlement export (auto-detect tab vs comma). ---
@@ -62,7 +64,20 @@
   }
 
   // PLACEHOLDER_COMPUTE
-  function num(v) { const n = Number(String(v || "").replace(/[, ]/g, "")); return isNaN(n) ? 0 : n; }
+  // Locale-aware amount parser. Amazon prints EU amounts as "95,00" / "1.234,56"
+  // (comma decimal) and US amounts as "1,234.56" (comma thousands). Decide per value
+  // by which separator appears last.
+  function num(v) {
+    let s = String(v == null ? "" : v).trim();
+    if (!s) return 0;
+    s = s.replace(/[^\d.,-]/g, ""); // strip currency symbols and any spaces
+    if (!s || s === "-") return 0;
+    const lastComma = s.lastIndexOf(","), lastDot = s.lastIndexOf(".");
+    if (lastComma > lastDot) s = s.replace(/\./g, "").replace(/,/g, "."); // comma is decimal (EU)
+    else s = s.replace(/,/g, ""); // dot is decimal (US); commas are thousands
+    const n = Number(s);
+    return isNaN(n) ? 0 : n;
+  }
 
   function compute(rows, cogsMap) {
     const bySku = new Map();
@@ -186,6 +201,24 @@
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([head + body], { type: "text/csv" }));
     a.download = "profit-by-sku.csv"; a.click();
+  });
+
+  // Export the audit findings (reconciliation, negative-margin SKUs, unclassified fees).
+  const auditBtn = $("#exportAudit");
+  if (auditBtn) auditBtn.addEventListener("click", () => {
+    if (!LAST) return;
+    const rows = [["issue_type", "sku_or_item", "detail", "amount"]];
+    if (LAST.headerTotal != null) {
+      const diff = LAST.grand - LAST.headerTotal;
+      rows.push(["reconciliation", "(settlement)", Math.abs(diff) > 0.01 ? "line items do NOT tie to deposit total" : "reconciled to deposit total", diff.toFixed(2)]);
+    }
+    LAST.list.filter((o) => o.profit < 0 && o.units > 0).forEach((o) =>
+      rows.push(["negative_margin_sku", o.sku, "loses money after fees" + (o.cogs ? " and COGS" : ""), o.profit.toFixed(2)]));
+    LAST.unclassified.forEach((d) => rows.push(["unclassified_fee", d, "fee type not in standard map (counted, bucketed as other)", ""]));
+    const csv = rows.map((r) => r.map((x) => `"${String(x).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+    a.download = "audit-report.csv"; a.click();
   });
 
   // --- Sample settlement so visitors can try without their own file. ---

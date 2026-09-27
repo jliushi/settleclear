@@ -1,4 +1,4 @@
-const { parseDelimited, classify, compute } = require("./assets/app.js");
+const { parseDelimited, classify, compute, num } = require("./assets/app.js");
 let fail = 0;
 const ok = (c, m) => { if (!c) { console.error("FAIL:", m); fail++; } else console.log("ok:", m); };
 
@@ -54,5 +54,26 @@ const r2 = compute(withReserve, {});
 ok(Math.abs(r2.grand - 723.58) < 0.01, "reserve moves the deposit (grand 723.58), got " + r2.grand.toFixed(2));
 const baseNoCogs = compute(parseDelimited(csv).rows, {}).totals.profit;
 ok(Math.abs(r2.totals.profit - baseNoCogs) < 0.01, "reserve does NOT change profit, got " + r2.totals.profit.toFixed(2) + " vs " + baseNoCogs.toFixed(2));
+
+// --- locale-aware amount parsing (EU comma-decimal vs US comma-thousands) ---
+ok(num("799.60") === 799.6, "US plain decimal");
+ok(num("1,234.56") === 1234.56, "US thousands comma + decimal dot");
+ok(num("-71.30") === -71.3, "US negative");
+ok(num("95,00") === 95, "EU comma decimal 95,00 -> 95, got " + num("95,00"));
+ok(num("1.234,56") === 1234.56, "EU dot-thousands comma-decimal -> 1234.56, got " + num("1.234,56"));
+ok(num("-64,00") === -64, "EU negative comma decimal, got " + num("-64,00"));
+ok(num("") === 0 && num(null) === 0 && num("  ") === 0, "blank/null -> 0");
+ok(num("EUR 1.000,00") === 1000, "currency-prefixed EU amount, got " + num("EUR 1.000,00"));
+// A EU-format settlement (comma decimals) still reconciles
+const euCsv = [
+  "settlement-id,currency,total-amount,transaction-type,order-id,sku,quantity-purchased,amount-type,amount-description,amount",
+  "77,EUR,\"180,06\",,,,,,,",
+  "77,EUR,,Order,111-9,EU-SKU,10,ItemPrice,Principal,\"250,00\"",
+  "77,EUR,,Order,111-9,EU-SKU,10,ItemFees,Commission,\"-37,50\"",
+  "77,EUR,,Order,111-9,EU-SKU,10,ItemFees,FBAPerUnitFulfillmentFee,\"-32,44\"",
+].join("\n");
+const eu = compute(parseDelimited(euCsv).rows, {});
+ok(Math.abs(eu.grand - 180.06) < 0.01, "EU file reconciles to 180,06, got " + eu.grand.toFixed(2));
+ok(Math.abs(eu.totals.revenue - 250) < 0.01, "EU revenue parsed as 250, got " + eu.totals.revenue.toFixed(2));
 
 process.exit(fail ? 1 : 0);

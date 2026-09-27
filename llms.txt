@@ -27,3 +27,7 @@
 - Amazon Q4 (Oct-Dec) FBA storage fees 2026 — the 3x peak and stacking surcharges: https://jliushi.github.io/settleclear/amazon-q4-storage-fees.html
 - Walmart Marketplace seller fees and true profit (2026) — informational: https://jliushi.github.io/settleclear/walmart-seller-fees.html
 - Temu seller fees and profit (2026), consignment vs semi-managed — informational: https://jliushi.github.io/settleclear/temu-seller-profit.html
+- Amazon FBA inbound placement fee 2026 — rates and how to avoid it: https://jliushi.github.io/settleclear/amazon-inbound-placement-fee.html
+- Amazon FBA low-inventory-level fee 2026 — the 28-day rule and rates: https://jliushi.github.io/settleclear/amazon-low-inventory-fee.html
+- How to find money-losing SKUs on Amazon from your settlement: https://jliushi.github.io/settleclear/find-losing-skus.html
+- SettleClear Pro (planned): https://jliushi.github.io/settleclear/pro.html

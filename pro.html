@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SettleClear Pro (planned): multi-platform profit and continuous fee audit</title>
+<meta name="description" content="What a paid SettleClear Pro tier would add — multi-platform settlement parsing, saved history, and continuous fee-overcharge monitoring. Planned, not yet available; the core tool stays free.">
+<link rel="canonical" href="https://jliushi.github.io/settleclear/pro.html">
+<meta property="og:title" content="SettleClear Pro (planned)">
+<meta property="og:description" content="Planned paid tier: multi-platform profit, saved history, continuous fee-audit monitoring. The core tool stays free.">
+<meta property="og:url" content="https://jliushi.github.io/settleclear/pro.html">
+<link rel="stylesheet" href="assets/style.css">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"SettleClear Pro (planned)","description":"Planned paid tier for SettleClear: multi-platform settlement parsing, saved history, and continuous fee-overcharge monitoring.","url":"https://jliushi.github.io/settleclear/pro.html"}
+</script>
+</head>
+<body>
+<header class="site">
+  <a class="brand" href="./">Settle<span>Clear</span></a>
+  <nav><a href="./#tool">Tool</a><a href="guide.html">Guide</a><a href="./#faq">FAQ</a></nav>
+</header>
+<main>
+<article class="how" style="border:0">
+<h1>SettleClear Pro — planned, not yet available</h1>
+<p class="lede">The core SettleClear tool — true profit per SKU and a fee audit from your Amazon settlement, entirely in your browser — is free and stays free. This page describes what a paid Pro tier <em>would</em> add. It does not exist yet: there is no signup and no charge today. It is here so the roadmap is honest and public.</p>
+
+<h2>What Pro would add</h2>
+<ul class="steps">
+<li><strong>Multi-platform</strong> — parse Walmart and Temu settlements alongside Amazon, in one profit view. (Today the free tool parses Amazon Flat File V2 only; see the <a href="walmart-seller-fees.html">Walmart</a> and <a href="temu-seller-profit.html">Temu</a> fee guides.)</li>
+<li><strong>Saved history</strong> — keep a dated record of every settlement so you build the long trend Amazon only retains for ~90 days, without re-uploading.</li>
+<li><strong>Continuous fee-overcharge monitoring</strong> — flag suspicious fees and missing reimbursements automatically each settlement, not just when you remember to check (see <a href="fee-overcharges.html">appealing overcharges</a>).</li>
+<li><strong>Batch and export</strong> — multiple accounts, scheduled exports, and bookkeeper-ready journals (see <a href="quickbooks-xero.html">QuickBooks/Xero reconciliation</a>).</li>
+</ul>
+
+<h2>What would stay free</h2>
+<p>The single-settlement, in-browser profit and audit tool — the part most sellers need — remains free and open source, with your data never leaving your machine. Pro would be for sellers who want history, automation, and more than one marketplace.</p>
+
+<div id="proCta" style="margin:24px 0"></div>
+
+<p>For now, the honest answer is: use the <a href="./#tool">free tool</a>. If you want to be told when Pro is real, the button above appears once a waitlist is open.</p>
+</article>
+</main>
+<footer class="site"><p>SettleClear is free and open source. Pro is a planned future option, not currently available. Not affiliated with Amazon, Walmart, or Temu.</p></footer>
+<script src="assets/app.js"></script>
+<script>
+(function () {
+  var cfg = window.SETTLECLEAR || {};
+  var el = document.getElementById("proCta");
+  if (!el) return;
+  if (cfg.proWaitlistUrl) {
+    el.innerHTML = '<a class="btn" href="' + cfg.proWaitlistUrl + '" rel="noopener">Join the Pro waitlist</a>';
+  } else {
+    el.innerHTML = '<p style="color:var(--muted)">Pro is planned, not yet available — there is no signup or charge today. Check back, or use the free tool now.</p>';
+  }
+})();
+</script>
+</body>
+</html>
