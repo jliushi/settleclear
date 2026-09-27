@@ -43,7 +43,8 @@ console.log("\nTotals:", { revenue: res.totals.revenue.toFixed(2), fees: res.tot
 ok(classify("other-transaction", "StorageRenewalBilling") === "fee", "storage renewal is a fee");
 ok(classify("ServiceFee", "Subscription") === "fee", "subscription is a fee");
 ok(classify("other-transaction", "FBAInboundTransportationFee") === "fee", "inbound transport is a fee");
-ok(classify("other-transaction", "Current reserve amount") === "tax", "reserve is excluded (pass-through)");
+ok(classify("other-transaction", "Current reserve amount") === "reserve", "reserve → reserve bucket");
+ok(classify("other-transaction", "Deferred transaction release") === "reserve", "deferred → reserve bucket");
 ok(classify("ItemFees", "FixedClosingFee") === "fee", "closing fee is a fee");
 ok(classify("ItemPrice", "Principal") === "revenue", "principal is revenue");
 ok(classify("", "") === "skip", "blank line skipped");
@@ -52,6 +53,7 @@ ok(classify("", "") === "skip", "blank line skipped");
 const withReserve = parseDelimited(csv + "\n90210,USD,,other-transaction,,,,other-transaction,Current reserve amount,-50.00").rows;
 const r2 = compute(withReserve, {});
 ok(Math.abs(r2.grand - 723.58) < 0.01, "reserve moves the deposit (grand 723.58), got " + r2.grand.toFixed(2));
+ok(r2.reserve === -50, "reserve total surfaced separately (-50), got " + r2.reserve);
 const baseNoCogs = compute(parseDelimited(csv).rows, {}).totals.profit;
 ok(Math.abs(r2.totals.profit - baseNoCogs) < 0.01, "reserve does NOT change profit, got " + r2.totals.profit.toFixed(2) + " vs " + baseNoCogs.toFixed(2));
 

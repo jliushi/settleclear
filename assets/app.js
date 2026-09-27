@@ -47,13 +47,14 @@
 
   // --- Classify a settlement line into a profit bucket. ---
   // Buckets: revenue (income), fee (cost), promo (cost), tax (pass-through, excluded
-  // from profit), other (unrecognised — still counted in net, and surfaced in the audit).
+  // from profit), reserve (account-level timing hold, excluded from profit but surfaced),
+  // other (unrecognised — still counted in net, and surfaced in the audit).
   function classify(type, desc) {
     const t = (type || "").toLowerCase(), d = (desc || "").toLowerCase();
     if (!t && !d) return "skip";
     // Pass-through amounts that must NOT count as profit: facilitated tax and reserve timing.
     if (t.includes("withheldtax") || d.includes("marketplacefacilitator") || d.includes("withheldtax")) return "tax";
-    if (d.includes("reserve")) return "tax";
+    if (d.includes("reserve") || d.includes("deferred") || d.includes("holdback")) return "reserve";
     if (t === "itemprice" || t === "componentprice") return d.includes("tax") ? "tax" : "revenue";
     if (t === "promotion") return "promo";
     if (t === "itemfees") return "fee";
@@ -85,7 +86,7 @@
 
   function compute(rows, cogsMap) {
     const bySku = new Map();
-    let currency = "$", headerTotal = null, grand = 0;
+    let currency = "$", headerTotal = null, grand = 0, reserve = 0;
     const unclassified = new Set();
     for (const r of rows) {
       if (r["currency"]) currency = r["currency"];
@@ -94,6 +95,8 @@
       if (r["amount"] !== "" && r["amount"] != null) grand += amt;
       const bucket = classify(r["amount-type"], r["amount-description"]);
       if (bucket === "skip") continue;
+      // Reserve/deferred is an account-level timing movement, not profit — track it apart.
+      if (bucket === "reserve") { reserve += amt; continue; }
       if (bucket === "other" && r["amount-description"]) unclassified.add(r["amount-description"]);
       const sku = r["sku"] || (r["transaction-type"] ? "(" + r["transaction-type"] + ")" : "(unattributed)");
       if (!bySku.has(sku)) bySku.set(sku, { sku, units: 0, revenue: 0, fee: 0, promo: 0, tax: 0, other: 0 });
@@ -113,7 +116,7 @@
       promo: a.promo + o.promo, cogs: a.cogs + o.cogs, profit: a.profit + o.profit,
       netProceeds: a.netProceeds + o.netProceeds,
     }), { units: 0, revenue: 0, fee: 0, promo: 0, cogs: 0, profit: 0, netProceeds: 0 });
-    return { list, totals, currency, headerTotal, grand, unclassified: [...unclassified] };
+    return { list, totals, currency, headerTotal, grand, reserve, unclassified: [...unclassified] };
   }
 
   // PLACEHOLDER_RENDER
@@ -129,7 +132,8 @@
       card("Amazon fees", money(res.totals.fee, c), "bad") +
       card("Promo", money(res.totals.promo, c)) +
       (res.totals.cogs ? card("COGS", money(-res.totals.cogs, c), "bad") : "") +
-      card(res.totals.cogs ? "Net profit" : "Net proceeds", money(res.totals.profit, c), res.totals.profit >= 0 ? "good" : "bad");
+      card(res.totals.cogs ? "Net profit" : "Net proceeds", money(res.totals.profit, c), res.totals.profit >= 0 ? "good" : "bad") +
+      (res.reserve ? card("Reserve / held", money(res.reserve, c)) : "");
     $("#summary").hidden = false;
 
     const alerts = [];
@@ -139,6 +143,10 @@
         alerts.push(["bad", `Reconciliation gap: line items sum to ${money(res.grand, c)} but the settlement total is ${money(res.headerTotal, c)} (off by ${money(diff, c)}). Some lines may be miscategorised — review below.`]);
       else
         alerts.push(["ok", `Reconciled: line items tie out to the settlement total of ${money(res.headerTotal, c)}.`]);
+    }
+    if (res.reserve) {
+      const held = res.reserve < 0;
+      alerts.push(["warn", `${held ? "Amazon held" : "This settlement released"} ${money(Math.abs(res.reserve), c)} ${held ? "in reserve this cycle — it is not lost, it releases in a later settlement" : "of previously-held reserve"}. This is a timing movement, not profit, so it is excluded from the figures above and explains part of the gap between your sales and your deposit.`]);
     }
     const neg = res.list.filter((o) => o.profit < 0 && o.units > 0);
     if (neg.length) alerts.push(["bad", `${neg.length} SKU(s) lose money after fees${res.totals.cogs ? " and COGS" : ""}: ${neg.slice(0, 5).map((o) => esc(o.sku)).join(", ")}${neg.length > 5 ? "…" : ""}.`]);
@@ -228,13 +236,14 @@
   // --- Sample settlement so visitors can try without their own file. ---
   $("#demo").addEventListener("click", () => {
     const H = ["settlement-id", "currency", "total-amount", "transaction-type", "order-id", "sku", "quantity-purchased", "amount-type", "amount-description", "amount"];
-    const rows = [[ "90210", "USD", "773.58", "", "", "", "", "", "", "" ]];
+    const rows = [[ "90210", "USD", "723.58", "", "", "", "", "", "", "" ]];
     const add = (sku, qty, tt, pairs) => pairs.forEach(([at, ad, amt]) => rows.push(["90210", "USD", "", tt, "111-" + sku, sku, qty, at, ad, String(amt)]));
     add("WIDGET-BLUE", "40", "Order", [["ItemPrice", "Principal", 799.6], ["ItemPrice", "Tax", 64.0], ["ItemFees", "Commission", -119.94], ["ItemFees", "FBAPerUnitFulfillmentFee", -132.0], ["ItemWithheldTax", "MarketplaceFacilitatorTax-Principal", -64.0]]);
     add("MUG-4PK", "22", "Order", [["ItemPrice", "Principal", 439.78], ["ItemFees", "Commission", -65.97], ["ItemFees", "FBAPerUnitFulfillmentFee", -114.4], ["Promotion", "Shipping", -18.0]]);
     add("CABLE-2M", "60", "Order", [["ItemPrice", "Principal", 359.4], ["ItemFees", "Commission", -53.91], ["ItemFees", "FBAPerUnitFulfillmentFee", -193.2], ["ItemFees", "FBAStorageFee", -22.5]]);
     add("WIDGET-BLUE", "2", "Refund", [["ItemPrice", "Principal", -39.98], ["ItemFees", "RefundCommission", 6.0]]);
     rows.push(["90210", "USD", "", "other-transaction", "", "", "", "other", "Cost of Advertising", "-71.30"]);
+    rows.push(["90210", "USD", "", "other-transaction", "", "", "", "other-transaction", "Current Reserve Amount", "-50.00"]);
     RAW = rows.slice(1).map((r) => { const o = {}; H.forEach((h, i) => (o[h] = r[i])); o["total-amount"] = rows[0][2]; return o; });
     $("#cogsInput").value = "WIDGET-BLUE,7.50\nMUG-4PK,9.00\nCABLE-2M,2.10";
     run();
