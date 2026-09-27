@@ -1,4 +1,4 @@
-const { parseDelimited, classify, compute, num } = require("./assets/app.js");
+const { parseDelimited, classify, compute, num, esc, csvField } = require("./assets/app.js");
 let fail = 0;
 const ok = (c, m) => { if (!c) { console.error("FAIL:", m); fail++; } else console.log("ok:", m); };
 
@@ -75,5 +75,20 @@ const euCsv = [
 const eu = compute(parseDelimited(euCsv).rows, {});
 ok(Math.abs(eu.grand - 180.06) < 0.01, "EU file reconciles to 180,06, got " + eu.grand.toFixed(2));
 ok(Math.abs(eu.totals.revenue - 250) < 0.01, "EU revenue parsed as 250, got " + eu.totals.revenue.toFixed(2));
+
+// --- escaping + CSV quoting (untrusted SKU/description from the uploaded file) ---
+ok(esc('<img src=x onerror=alert(1)>') === '&lt;img src=x onerror=alert(1)&gt;', "esc neutralises tags");
+ok(esc('a&b"c\'') === 'a&amp;b&quot;c&#39;', "esc handles &, quotes");
+ok(esc("plain-sku") === "plain-sku", "esc leaves safe text");
+ok(csvField("A,B") === '"A,B"', "csvField quotes commas");
+ok(csvField('he said "hi"') === '"he said ""hi"""', "csvField doubles quotes");
+// a SKU containing a comma must not create extra columns in profit export
+const injCsv = [
+  "settlement-id,currency,total-amount,transaction-type,order-id,sku,quantity-purchased,amount-type,amount-description,amount",
+  "1,USD,10.00,,,,,,,",
+  '1,USD,,Order,o1,"BAD,SKU",1,ItemPrice,Principal,10.00',
+].join("\n");
+const inj = compute(parseDelimited(injCsv).rows, {});
+ok(inj.list.some((o) => o.sku === "BAD,SKU"), "SKU with comma parsed intact, got " + JSON.stringify(inj.list.map((o) => o.sku)));
 
 process.exit(fail ? 1 : 0);

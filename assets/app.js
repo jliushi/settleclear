@@ -15,6 +15,10 @@
   // Expose config so standalone pages (e.g. pro.html) can read it without duplicating it.
   if (typeof window !== "undefined") window.SETTLECLEAR = CONFIG;
   const money = (n, c) => (n < 0 ? "-" : "") + (c || "$") + Math.abs(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  // Escape untrusted values (SKUs, fee descriptions from the uploaded file) before innerHTML.
+  const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
+  // Quote a CSV field so embedded commas/quotes/newlines don't break the row.
+  const csvField = (x) => `"${String(x == null ? "" : x).replace(/"/g, '""')}"`;
 
   // --- Parse a delimited settlement export (auto-detect tab vs comma). ---
   function parseDelimited(text) {
@@ -137,8 +141,8 @@
         alerts.push(["ok", `Reconciled: line items tie out to the settlement total of ${money(res.headerTotal, c)}.`]);
     }
     const neg = res.list.filter((o) => o.profit < 0 && o.units > 0);
-    if (neg.length) alerts.push(["bad", `${neg.length} SKU(s) lose money after fees${res.totals.cogs ? " and COGS" : ""}: ${neg.slice(0, 5).map((o) => o.sku).join(", ")}${neg.length > 5 ? "…" : ""}.`]);
-    if (res.unclassified.length) alerts.push(["warn", `${res.unclassified.length} fee type(s) not in the standard map were bucketed as “other” (not silently dropped): ${res.unclassified.slice(0, 6).join(", ")}.`]);
+    if (neg.length) alerts.push(["bad", `${neg.length} SKU(s) lose money after fees${res.totals.cogs ? " and COGS" : ""}: ${neg.slice(0, 5).map((o) => esc(o.sku)).join(", ")}${neg.length > 5 ? "…" : ""}.`]);
+    if (res.unclassified.length) alerts.push(["warn", `${res.unclassified.length} fee type(s) not in the standard map were bucketed as “other” (not silently dropped): ${res.unclassified.slice(0, 6).map(esc).join(", ")}.`]);
     $("#alerts").innerHTML = alerts.map(([k, t]) => `<div class="alert ${k === "bad" ? "bad" : ""}">${t}</div>`).join("");
     $("#alerts").hidden = !alerts.length;
 
@@ -151,7 +155,7 @@
   function drawTable(list, c) {
     const cols = [["sku", "SKU"], ["units", "Units"], ["revenue", "Revenue"], ["fee", "Fees"], ["promo", "Promo"], ["cogs", "COGS"], ["profit", "Profit"]];
     $("#table thead").innerHTML = "<tr>" + cols.map(([, l]) => `<th>${l}</th>`).join("") + "</tr>";
-    $("#table tbody").innerHTML = list.map((o) => `<tr class="${o.profit < 0 ? "neg" : ""}"><td>${o.sku}</td><td>${o.units}</td><td>${money(o.revenue, c)}</td><td>${money(o.fee, c)}</td><td>${money(o.promo, c)}</td><td>${o.cogs ? money(-o.cogs, c) : "—"}</td><td>${money(o.profit, c)}</td></tr>`).join("");
+    $("#table tbody").innerHTML = list.map((o) => `<tr class="${o.profit < 0 ? "neg" : ""}"><td>${esc(o.sku)}</td><td>${o.units}</td><td>${money(o.revenue, c)}</td><td>${money(o.fee, c)}</td><td>${money(o.promo, c)}</td><td>${o.cogs ? money(-o.cogs, c) : "—"}</td><td>${money(o.profit, c)}</td></tr>`).join("");
   }
 
   // PLACEHOLDER_WIRE
@@ -170,7 +174,7 @@
   }
 
   if (typeof document === "undefined" || !document.getElementById("drop")) {
-    if (typeof module !== "undefined" && module.exports) module.exports = { parseDelimited, classify, num, compute };
+    if (typeof module !== "undefined" && module.exports) module.exports = { parseDelimited, classify, num, compute, esc, csvField };
     return;
   }
   const drop = $("#drop");
@@ -197,7 +201,7 @@
   $("#export").addEventListener("click", () => {
     if (!LAST) return;
     const head = "sku,units,revenue,fees,promo,cogs,net_profit\n";
-    const body = LAST.list.map((o) => [o.sku, o.units, o.revenue.toFixed(2), o.fee.toFixed(2), o.promo.toFixed(2), (-o.cogs).toFixed(2), o.profit.toFixed(2)].join(",")).join("\n");
+    const body = LAST.list.map((o) => [csvField(o.sku), o.units, o.revenue.toFixed(2), o.fee.toFixed(2), o.promo.toFixed(2), (-o.cogs).toFixed(2), o.profit.toFixed(2)].join(",")).join("\n");
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([head + body], { type: "text/csv" }));
     a.download = "profit-by-sku.csv"; a.click();
