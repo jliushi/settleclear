@@ -3,14 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SettleClear — Free Amazon Settlement Profit &amp; Fee Audit Tool (runs in your browser)</title>
+<title>Free Amazon Settlement Profit &amp; Fee Audit Tool | SettleClear</title>
 <meta name="description" content="Drop your Amazon settlement report and see true profit per SKU after every fee, plus a fee audit that flags overcharges. 100% in your browser — your data never leaves your computer. Free, no signup.">
 <link rel="canonical" href="https://jliushi.github.io/settleclear/">
 <meta property="og:type" content="website">
 <meta property="og:title" content="SettleClear — Free Amazon Settlement Profit & Fee Audit">
 <meta property="og:description" content="See true profit per SKU after every Amazon fee and catch overcharges. Runs entirely in your browser. Free, no signup, no upload.">
 <meta property="og:url" content="https://jliushi.github.io/settleclear/">
-<meta name="twitter:card" content="summary_large_image">
+<meta property="og:site_name" content="SettleClear">
+<meta name="twitter:card" content="summary">
 <meta name="robots" content="index,follow">
 <link rel="stylesheet" href="assets/style.css">
 <script type="application/ld+json">
@@ -29,9 +30,9 @@
     {
       "@type": "FAQPage",
       "mainEntity": [
-        { "@type": "Question", "name": "Is my Amazon data uploaded anywhere?", "acceptedAnswer": { "@type": "Answer", "text": "No. SettleClear is 100% client-side. Your settlement file is parsed in your own browser and never sent to any server." } },
-        { "@type": "Question", "name": "How is true Amazon profit per SKU calculated?", "acceptedAnswer": { "@type": "Answer", "text": "Net proceeds per SKU equal product charges minus Amazon fees (referral, FBA, storage, refund admin) minus promo rebates minus refunds plus reimbursements. Adding per-unit COGS yields net profit." } },
-        { "@type": "Question", "name": "What does the fee audit flag?", "acceptedAnswer": { "@type": "Answer", "text": "Rows where order and settlement amounts do not reconcile, fee lines that cannot be classified, and SKUs that lose money after all fees and COGS." } }
+        { "@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": { "@type": "Answer", "text": "No. SettleClear is 100% client-side JavaScript. Your settlement file is parsed in your own browser and never sent to any server. You can disconnect from the internet after the page loads and it still works." } },
+        { "@type": "Question", "name": "How is true profit calculated?", "acceptedAnswer": { "@type": "Answer", "text": "Net proceeds per SKU = product charges − Amazon fees (referral, FBA, storage, refund admin, etc.) − promotional rebates − refunds + reimbursements. If you add per-unit COGS, that is subtracted to give net profit. Every number traces back to lines in your own report." } },
+        { "@type": "Question", "name": "What does the fee audit flag?", "acceptedAnswer": { "@type": "Answer", "text": "Rows where order and settlement amounts don't reconcile, fee lines the parser can't classify (so they're never silently averaged away), and SKUs that lose money once all fees and COGS are counted." } }
       ]
     }
   ]
