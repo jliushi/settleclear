@@ -14,15 +14,19 @@
   const $ = (s) => document.querySelector(s);
   // Expose config so standalone pages (e.g. pro.html) can read it without duplicating it.
   if (typeof window !== "undefined") window.SETTLECLEAR = CONFIG;
-  const money = (n, c) => (n < 0 ? "-" : "") + (c || "$") + Math.abs(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const money = (n, c) => (n < 0 ? "-" : "") + esc(c || "$") + Math.abs(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   // Escape untrusted values (SKUs, fee descriptions from the uploaded file) before innerHTML.
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
   // Quote a CSV field so embedded commas/quotes/newlines don't break the row.
   const csvField = (x) => `"${String(x == null ? "" : x).replace(/"/g, '""')}"`;
+  // As csvField, but also neutralise spreadsheet formula injection (leading = + - @ tab CR).
+  const csvSafe = (x) => { let s = String(x == null ? "" : x); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return csvField(s); };
+  // Respect the visitor's reduced-motion preference for programmatic scrolling.
+  const scrollOpt = () => ({ behavior: (typeof matchMedia !== "undefined" && matchMedia("(prefers-reduced-motion: reduce)").matches) ? "auto" : "smooth", block: "start" });
 
   // --- Parse a delimited settlement export (auto-detect tab vs comma). ---
   function parseDelimited(text) {
-    text = text.replace(/^﻿/, "").replace(/\r\n/g, "\n").trim();
+    text = text.replace(/^﻿/, "").replace(/\r\n?/g, "\n").trim();
     const lines = text.split("\n").filter((l) => l.length);
     if (!lines.length) return { headers: [], rows: [] };
     const delim = lines[0].indexOf("\t") >= 0 ? "\t" : ",";
@@ -75,22 +79,25 @@
   function num(v) {
     let s = String(v == null ? "" : v).trim();
     if (!s) return 0;
-    s = s.replace(/[^\d.,-]/g, ""); // strip currency symbols and any spaces
+    let neg = /\(.*\)/.test(s); // accounting-format negative, e.g. (12.34) or $ (50.00)
+    s = s.replace(/[^\d.,-]/g, ""); // strip currency symbols, parentheses, spaces
     if (!s || s === "-") return 0;
+    if (s.indexOf("-") >= 0) neg = true; // leading or trailing minus
+    s = s.replace(/-/g, "");
     const lastComma = s.lastIndexOf(","), lastDot = s.lastIndexOf(".");
     if (lastComma > lastDot) s = s.replace(/\./g, "").replace(/,/g, "."); // comma is decimal (EU)
     else s = s.replace(/,/g, ""); // dot is decimal (US); commas are thousands
     const n = Number(s);
-    return isNaN(n) ? 0 : n;
+    return isNaN(n) ? 0 : (neg ? -n : n);
   }
 
   function compute(rows, cogsMap) {
     const bySku = new Map();
-    let currency = "$", headerTotal = null, grand = 0, reserve = 0;
-    const unclassified = new Set();
+    let currency = "$", grand = 0, reserve = 0;
+    const unclassified = new Set(), settleTotals = new Map();
     for (const r of rows) {
-      if (r["currency"]) currency = r["currency"];
-      if (r["total-amount"]) headerTotal = num(r["total-amount"]);
+      if (r["currency"]) currency = String(r["currency"]).replace(/[^\w$€£¥.\- ]/g, "").slice(0, 8) || currency;
+      if (r["total-amount"]) settleTotals.set(r["settlement-id"] || "_", num(r["total-amount"]));
       const amt = num(r["amount"]);
       if (r["amount"] !== "" && r["amount"] != null) grand += amt;
       const bucket = classify(r["amount-type"], r["amount-description"]);
@@ -102,9 +109,12 @@
       if (!bySku.has(sku)) bySku.set(sku, { sku, units: 0, revenue: 0, fee: 0, promo: 0, tax: 0, other: 0 });
       const o = bySku.get(sku);
       o[bucket === "revenue" ? "revenue" : bucket === "fee" ? "fee" : bucket === "promo" ? "promo" : bucket === "tax" ? "tax" : "other"] += amt;
-      // Count units once per sold item (the Principal price line), not per fee line.
-      if ((r["amount-description"] || "").toLowerCase() === "principal" && (r["transaction-type"] || "").toLowerCase() !== "refund")
-        o.units += num(r["quantity-purchased"]);
+      // Units: count sold units on Principal lines; a refund's Principal reduces net units
+      // so COGS tracks net units sold (assumes returned units are resellable).
+      if ((r["amount-description"] || "").toLowerCase() === "principal") {
+        const q = num(r["quantity-purchased"]);
+        o.units += (r["transaction-type"] || "").toLowerCase() === "refund" ? -q : q;
+      }
     }
     const list = [...bySku.values()].map((o) => {
       const cogs = cogsMap && cogsMap[o.sku] != null ? cogsMap[o.sku] * o.units : 0;
@@ -116,6 +126,7 @@
       promo: a.promo + o.promo, cogs: a.cogs + o.cogs, profit: a.profit + o.profit,
       netProceeds: a.netProceeds + o.netProceeds,
     }), { units: 0, revenue: 0, fee: 0, promo: 0, cogs: 0, profit: 0, netProceeds: 0 });
+    const headerTotal = settleTotals.size ? [...settleTotals.values()].reduce((a, b) => a + b, 0) : null;
     const recognized = list.length > 0 || grand !== 0 || headerTotal !== null;
     return { list, totals, currency, headerTotal, grand, reserve, recognized, unclassified: [...unclassified] };
   }
@@ -130,7 +141,7 @@
       $("#alerts").innerHTML = `<div class="alert bad">This file doesn't look like an Amazon <strong>Flat File V2 settlement report</strong>. Download it from Seller Central → Reports → Payments → Date Range Reports — a tab- or comma-delimited .txt/.csv with columns like <code>transaction-type</code>, <code>amount-type</code>, and <code>amount</code>. Then drop it here again.</div>`;
       $("#alerts").hidden = false;
       $("#summary").hidden = true; $("#tableWrap").hidden = true; $("#cogs").hidden = true;
-      $("#tool").scrollIntoView({ behavior: "smooth", block: "start" });
+      $("#tool").scrollIntoView(scrollOpt());
       return;
     }
     const c = res.currency;
@@ -149,7 +160,7 @@
     if (res.headerTotal != null) {
       const diff = res.grand - res.headerTotal;
       if (Math.abs(diff) > 0.01)
-        alerts.push(["bad", `Reconciliation gap: line items sum to ${money(res.grand, c)} but the settlement total is ${money(res.headerTotal, c)} (off by ${money(diff, c)}). Some lines may be miscategorised — review below.`]);
+        alerts.push(["bad", `Reconciliation gap of ${money(diff, c)}: the line items sum to ${money(res.grand, c)} but the settlement total is ${money(res.headerTotal, c)}. Usually an amount was in an unexpected format (e.g. a negative written as (12.34)) or the file combines more than one settlement period.`]);
       else
         alerts.push(["ok", `Reconciled: line items tie out to the settlement total of ${money(res.headerTotal, c)}.`]);
     }
@@ -166,7 +177,7 @@
     drawTable(res.list, res.currency);
     $("#tableWrap").hidden = false;
     $("#cogs").hidden = false;
-    $("#tool").scrollIntoView({ behavior: "smooth", block: "start" });
+    $("#tool").scrollIntoView(scrollOpt());
   }
 
   function drawTable(list, c) {
@@ -179,7 +190,7 @@
   let RAW = null;
   function parseCogs() {
     const map = {}; const txt = $("#cogsInput").value || "";
-    txt.split("\n").forEach((l) => { const [s, c] = l.split(","); if (s && c) map[s.trim()] = num(c); });
+    txt.split("\n").forEach((l) => { const i = l.indexOf(","); if (i > 0) map[l.slice(0, i).trim()] = num(l.slice(i + 1)); });
     return map;
   }
   function run() { if (RAW) render(compute(RAW, parseCogs())); }
@@ -191,7 +202,7 @@
   }
 
   if (typeof document === "undefined" || !document.getElementById("drop")) {
-    if (typeof module !== "undefined" && module.exports) module.exports = { parseDelimited, classify, num, compute, esc, csvField };
+    if (typeof module !== "undefined" && module.exports) module.exports = { parseDelimited, classify, num, compute, esc, csvField, csvSafe };
     return;
   }
   const drop = $("#drop");
@@ -218,7 +229,7 @@
   $("#export").addEventListener("click", () => {
     if (!LAST) return;
     const head = "sku,units,revenue,fees,promo,cogs,net_profit\n";
-    const body = LAST.list.map((o) => [csvField(o.sku), o.units, o.revenue.toFixed(2), o.fee.toFixed(2), o.promo.toFixed(2), (-o.cogs).toFixed(2), o.profit.toFixed(2)].join(",")).join("\n");
+    const body = LAST.list.map((o) => [csvSafe(o.sku), o.units, o.revenue.toFixed(2), o.fee.toFixed(2), o.promo.toFixed(2), (-o.cogs).toFixed(2), o.profit.toFixed(2)].join(",")).join("\n");
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([head + body], { type: "text/csv" }));
     a.download = "profit-by-sku.csv"; a.click();
@@ -236,7 +247,7 @@
     LAST.list.filter((o) => o.profit < 0 && o.units > 0).forEach((o) =>
       rows.push(["negative_margin_sku", o.sku, "loses money after fees" + (o.cogs ? " and COGS" : ""), o.profit.toFixed(2)]));
     LAST.unclassified.forEach((d) => rows.push(["unclassified_fee", d, "fee type not in standard map (counted, bucketed as other)", ""]));
-    const csv = rows.map((r) => r.map((x) => `"${String(x).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const csv = rows.map((r) => r.map(csvSafe).join(",")).join("\n");
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
     a.download = "audit-report.csv"; a.click();

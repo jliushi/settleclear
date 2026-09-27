@@ -1,4 +1,4 @@
-const { parseDelimited, classify, compute, num, esc, csvField } = require("./assets/app.js");
+const { parseDelimited, classify, compute, num, esc, csvField, csvSafe } = require("./assets/app.js");
 let fail = 0;
 const ok = (c, m) => { if (!c) { console.error("FAIL:", m); fail++; } else console.log("ok:", m); };
 
@@ -35,8 +35,8 @@ const wb = res.list.find((o) => o.sku === "WIDGET-BLUE");
 ok(Math.abs(wb.netProceeds - 513.68) < 0.01, "WIDGET-BLUE net proceeds 513.68, got " + wb.netProceeds.toFixed(2));
 ok(res.list.length === 4, "4 skus incl advertising bucket, got " + res.list.length);
 const wbUnits = res.list.find((o) => o.sku === "WIDGET-BLUE").units;
-ok(wbUnits === 40, "WIDGET-BLUE counts 40 sold units (not per-fee-line), got " + wbUnits);
-ok(Math.abs(res.totals.profit - 149.58) < 0.01, "total net profit 149.58, got " + res.totals.profit.toFixed(2));
+ok(wbUnits === 38, "WIDGET-BLUE net units = 40 sold - 2 refunded = 38, got " + wbUnits);
+ok(Math.abs(res.totals.profit - 164.58) < 0.01, "total net profit 164.58 (COGS on net units), got " + res.totals.profit.toFixed(2));
 console.log("\nTotals:", { revenue: res.totals.revenue.toFixed(2), fees: res.totals.fee.toFixed(2), profit: res.totals.profit.toFixed(2) });
 
 // --- extended classify coverage (hardened parser) ---
@@ -100,5 +100,30 @@ ok(compute(junk, {}).recognized === false, "random CSV → not recognized");
 ok(compute(junk, {}).list.length === 0, "random CSV → no phantom SKUs");
 ok(compute(parseDelimited(csv).rows, {}).recognized === true, "real settlement → recognized");
 ok(compute(parseDelimited("").rows, {}).recognized === false, "blank file → not recognized (no throw)");
+
+// --- R8 audit fixes ---
+// #10 accounting-format negatives must not flip positive
+ok(num("(12.34)") === -12.34, "paren negative -> -12.34, got " + num("(12.34)"));
+ok(num("$ (50.00)") === -50, "currency+paren negative -> -50, got " + num("$ (50.00)"));
+ok(num("(1,234.56)") === -1234.56, "paren US negative -> -1234.56, got " + num("(1,234.56)"));
+ok(num("1,234.56") === 1234.56, "positive unaffected");
+// #1 currency is escaped (XSS): a currency carrying HTML is neutralised in money()/render
+ok(compute(parseDelimited("currency,sku,amount-type,amount-description,amount\n<img src=x onerror=alert(1)>,FOO,ItemPrice,Principal,100").rows, {}).currency.indexOf("<") === -1, "currency sanitised (no angle brackets)");
+// #15 CSV formula injection neutralised
+ok(csvSafe("=1+1") === "\"'=1+1\"", "csvSafe prefixes apostrophe on formula, got " + csvSafe("=1+1"));
+ok(csvSafe("@x") === "\"'@x\"", "csvSafe guards @");
+ok(csvSafe("normal") === '"normal"', "csvSafe leaves normal text quoted");
+ok(csvSafe("A,B") === '"A,B"', "csvSafe still quotes commas");
+// #11 multiple settlement blocks: headerTotal sums distinct settlement-ids
+const multi = [
+  "settlement-id,currency,total-amount,transaction-type,sku,quantity-purchased,amount-type,amount-description,amount",
+  "A,USD,100.00,,,,,,",
+  "A,USD,,Order,S1,1,ItemPrice,Principal,100.00",
+  "B,USD,50.00,,,,,,",
+  "B,USD,,Order,S2,1,ItemPrice,Principal,50.00",
+].join("\n");
+ok(compute(parseDelimited(multi).rows, {}).headerTotal === 150, "multi-settlement headerTotal = 100+50 = 150, got " + compute(parseDelimited(multi).rows, {}).headerTotal);
+// #24 lone-CR line endings still parse into rows
+ok(parseDelimited("h1,h2\ra,b\rc,d").rows.length === 2, "lone-CR newlines → 2 rows, got " + parseDelimited("h1,h2\ra,b\rc,d").rows.length);
 
 process.exit(fail ? 1 : 0);

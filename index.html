@@ -58,6 +58,7 @@
 </section>
 
 <section id="tool" class="tool">
+  <h2 class="sr-only">Audit your Amazon settlement report</h2>
   <div class="drop" id="drop">
     <p class="drop-title">Drop your Amazon settlement report here</p>
     <p class="drop-sub">Seller Central → Reports → Payments → Date Range Reports. CSV, TXT or TSV. Nothing is uploaded.</p>
@@ -75,11 +76,11 @@
     <button class="btn" id="apply">Recompute with COGS</button>
   </div>
 
-  <div id="summary" class="summary" hidden></div>
-  <div id="alerts" class="alerts" hidden></div>
+  <div id="summary" class="summary" aria-live="polite" hidden></div>
+  <div id="alerts" class="alerts" role="status" aria-live="polite" hidden></div>
   <div id="tableWrap" class="table-wrap" hidden>
     <div class="table-bar">
-      <input type="search" id="search" placeholder="Filter by SKU…">
+      <input type="search" id="search" aria-label="Filter results by SKU" placeholder="Filter by SKU…">
       <button class="btn ghost" id="export">Export profit-by-SKU CSV</button>
       <button class="btn ghost" id="exportAudit">Export audit report</button>
     </div>
