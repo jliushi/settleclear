@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Amazon Reserve Explained: Why Funds Are Held (2026) | SettleClear</title>
+<meta name="description" content="Amazon holds an account-level reserve for future refunds and claims. What it is, the two reserve lines in your settlement, and why your deposit is under the total.">
+<link rel="canonical" href="https://jliushi.github.io/settleclear/amazon-reserve-explained.html">
+<meta property="og:title" content="Amazon Reserve Explained: Why Funds Are Held">
+<meta property="og:description" content="What Amazon's account-level reserve is, the two reserve lines in your settlement, and why your deposit is lower than the settlement total.">
+<meta property="og:url" content="https://jliushi.github.io/settleclear/amazon-reserve-explained.html">
+<link rel="stylesheet" href="assets/style.css">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is an Amazon account-level reserve?","acceptedAnswer":{"@type":"Answer","text":"A reserve is money Amazon holds back from your total balance to cover future refunds, A-to-z guarantee claims, and chargebacks. It is held at the account level, not taken from any single transaction, and it releases in a later settlement."}},{"@type":"Question","name":"Why is my Amazon deposit less than the settlement total?","acceptedAnswer":{"@type":"Answer","text":"The settlement total-amount is what Amazon owes you for the cycle; the deposit can be lower because a reserve was held this cycle. The settlement shows a Current Reserve Amount held and a Previous Reserve Amount released, and the net difference explains the gap."}}]}
+</script>
+</head>
+<body>
+<header class="site">
+  <a class="brand" href="./">Settle<span>Clear</span></a>
+  <nav><a href="./#tool">Tool</a><a href="guide.html">Guide</a><a href="./#faq">FAQ</a></nav>
+</header>
+<main>
+<article class="how" style="border:0">
+<h1>Amazon reserve explained: why funds are held</h1>
+<p class="lede">A reserve is money Amazon holds back from your balance to cover things that might go wrong later — refunds, A-to-z guarantee claims, and chargebacks. It is normal, it is not a penalty, and it is not lost. This page explains how the reserve works, the two reserve lines you will see in a settlement, and why your bank deposit can be smaller than the settlement total. It pairs with <a href="amazon-deferred-transactions-explained.html">deferred transactions</a> and <a href="amazon-payout-less-than-sales.html">why your payout is less than your sales</a>.</p>
+
+<h2>What the reserve is for</h2>
+<p>When you sell, Amazon may need to refund a buyer or resolve a claim after the fact. To make sure the money is there, it holds a reserve against your account balance. The standard timing follows a delivery-date policy: funds generally become available around 7 to 14 days after delivery. The reserve is held from your <strong>total account balance</strong> — importantly, it is not deducted from any single order. There are no transaction-level reserves, even when a reserve results from a specific chargeback.</p>
+
+<h2>The two reserve lines in your settlement</h2>
+<p>Each settlement report shows the reserve as two entries, which is what confuses people:</p>
+<table>
+<thead><tr><th>Line</th><th>What it is</th></tr></thead>
+<tbody>
+<tr><td>Previous Reserve Amount Balance</td><td>A credit — the reserve held last cycle, now released to you.</td></tr>
+<tr><td>Current Reserve Amount</td><td>A debit — the reserve being held from this cycle.</td></tr>
+</tbody>
+</table>
+<p>The net of the two is how much reserve moved this period. In a steady business the amount held and the amount released are similar, so the net effect is small; during a sales ramp, more is held than released, and your deposit dips relative to your activity.</p>
+
+<h2>Why the deposit is under the settlement total</h2>
+<p>The settlement report's <code>total-amount</code> is what Amazon owes you for the cycle. The amount that actually lands in your bank can be lower because a reserve was held. That is the gap. When you reconcile, tie your line items to <code>total-amount</code> first, then treat the reserve as a separate timing movement — money that shifts between cycles, not a cost.</p>
+
+<h2>How to account for it</h2>
+<p>In bookkeeping, a reserve is a balance-sheet item, not a profit-and-loss expense. It is your money, temporarily held, scheduled to release. Recording it as an expense understates both your assets and your profit. SettleClear surfaces the reserve on its own card and in an alert, so you can see exactly how much of the sales-to-deposit gap is reserve timing rather than fees. See the <a href="guide.html">settlement guide</a>, read about <a href="amazon-deferred-transactions-explained.html">deferred transactions</a>, or <a href="./#tool">run your report</a>.</p>
+</article>
+</main>
+<footer class="site"><p>SettleClear is free and open source. Not affiliated with Amazon. General information, not tax, accounting, or financial advice; verify against your Seller Central reports.</p></footer>
+</body>
+</html>

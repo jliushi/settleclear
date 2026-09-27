@@ -33,3 +33,5 @@
 - SettleClear Pro (planned): https://jliushi.github.io/settleclear/pro.html
 - Why is my Amazon payout less than my sales (reserve & deferred): https://jliushi.github.io/settleclear/amazon-payout-less-than-sales.html
 - What is the "Other" charge on my Amazon settlement: https://jliushi.github.io/settleclear/amazon-settlement-other-charge.html
+- Amazon deferred transactions explained: https://jliushi.github.io/settleclear/amazon-deferred-transactions-explained.html
+- Amazon reserve explained (why funds are held): https://jliushi.github.io/settleclear/amazon-reserve-explained.html
