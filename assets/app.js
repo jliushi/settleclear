@@ -116,7 +116,8 @@
       promo: a.promo + o.promo, cogs: a.cogs + o.cogs, profit: a.profit + o.profit,
       netProceeds: a.netProceeds + o.netProceeds,
     }), { units: 0, revenue: 0, fee: 0, promo: 0, cogs: 0, profit: 0, netProceeds: 0 });
-    return { list, totals, currency, headerTotal, grand, reserve, unclassified: [...unclassified] };
+    const recognized = list.length > 0 || grand !== 0 || headerTotal !== null;
+    return { list, totals, currency, headerTotal, grand, reserve, recognized, unclassified: [...unclassified] };
   }
 
   // PLACEHOLDER_RENDER
@@ -124,6 +125,14 @@
 
   function render(res) {
     LAST = res;
+    // Guard: the upload isn't a recognizable settlement report — say so instead of showing zeros.
+    if (!res.recognized) {
+      $("#alerts").innerHTML = `<div class="alert bad">This file doesn't look like an Amazon <strong>Flat File V2 settlement report</strong>. Download it from Seller Central → Reports → Payments → Date Range Reports — a tab- or comma-delimited .txt/.csv with columns like <code>transaction-type</code>, <code>amount-type</code>, and <code>amount</code>. Then drop it here again.</div>`;
+      $("#alerts").hidden = false;
+      $("#summary").hidden = true; $("#tableWrap").hidden = true; $("#cogs").hidden = true;
+      $("#tool").scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
     const c = res.currency;
     const card = (k, v, cls) => `<div class="card"><div class="k">${k}</div><div class="v ${cls || ""}">${v}</div></div>`;
     $("#summary").innerHTML =

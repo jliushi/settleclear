@@ -93,4 +93,12 @@ const injCsv = [
 const inj = compute(parseDelimited(injCsv).rows, {});
 ok(inj.list.some((o) => o.sku === "BAD,SKU"), "SKU with comma parsed intact, got " + JSON.stringify(inj.list.map((o) => o.sku)));
 
+// --- robustness: recognize non-settlement / empty input ---
+ok(compute([], {}).recognized === false, "empty input → not recognized");
+const junk = parseDelimited("name,age,city\nAlice,30,NYC\nBob,25,LA").rows;
+ok(compute(junk, {}).recognized === false, "random CSV → not recognized");
+ok(compute(junk, {}).list.length === 0, "random CSV → no phantom SKUs");
+ok(compute(parseDelimited(csv).rows, {}).recognized === true, "real settlement → recognized");
+ok(compute(parseDelimited("").rows, {}).recognized === false, "blank file → not recognized (no throw)");
+
 process.exit(fail ? 1 : 0);
