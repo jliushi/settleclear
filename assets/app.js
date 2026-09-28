@@ -72,6 +72,16 @@
     return "skip";
   }
 
+  // Sub-categorise a fee line so the tool can show where fees went (not just one total).
+  function feeCat(desc) {
+    const d = (desc || "").toLowerCase();
+    if (d.includes("commission")) return "referral";
+    if (d.includes("storage")) return "storage";
+    if (d.includes("advertis")) return "advertising";
+    if (d.includes("fulfillment") || d.includes("fulfilment") || d.includes("fba") || d.includes("weight") || d.includes("pick")) return "fulfillment";
+    return "otherFees";
+  }
+
   // PLACEHOLDER_COMPUTE
   // Locale-aware amount parser. Amazon prints EU amounts as "95,00" / "1.234,56"
   // (comma decimal) and US amounts as "1,234.56" (comma thousands). Decide per value
@@ -95,6 +105,7 @@
     const bySku = new Map();
     let currency = "$", grand = 0, reserve = 0;
     const unclassified = new Set(), settleTotals = new Map();
+    const feeBreakdown = { referral: 0, fulfillment: 0, storage: 0, advertising: 0, otherFees: 0 };
     for (const r of rows) {
       if (r["currency"]) currency = String(r["currency"]).replace(/[^\w$€£¥.\- ]/g, "").slice(0, 8) || currency;
       if (r["total-amount"]) settleTotals.set(r["settlement-id"] || "_", num(r["total-amount"]));
@@ -109,6 +120,7 @@
       if (!bySku.has(sku)) bySku.set(sku, { sku, units: 0, revenue: 0, fee: 0, promo: 0, tax: 0, other: 0 });
       const o = bySku.get(sku);
       o[bucket === "revenue" ? "revenue" : bucket === "fee" ? "fee" : bucket === "promo" ? "promo" : bucket === "tax" ? "tax" : "other"] += amt;
+      if (bucket === "fee") feeBreakdown[feeCat(r["amount-description"])] += amt;
       // Units: count sold units on Principal lines; a refund's Principal reduces net units
       // so COGS tracks net units sold (assumes returned units are resellable).
       if ((r["amount-description"] || "").toLowerCase() === "principal") {
@@ -128,7 +140,7 @@
     }), { units: 0, revenue: 0, fee: 0, promo: 0, cogs: 0, profit: 0, netProceeds: 0 });
     const headerTotal = settleTotals.size ? [...settleTotals.values()].reduce((a, b) => a + b, 0) : null;
     const recognized = list.length > 0 || grand !== 0 || headerTotal !== null;
-    return { list, totals, currency, headerTotal, grand, reserve, recognized, unclassified: [...unclassified] };
+    return { list, totals, currency, headerTotal, grand, reserve, recognized, feeBreakdown, unclassified: [...unclassified] };
   }
 
   // PLACEHOLDER_RENDER
@@ -167,6 +179,12 @@
     if (res.reserve) {
       const held = res.reserve < 0;
       alerts.push(["warn", `${held ? "Amazon held" : "This settlement released"} ${money(Math.abs(res.reserve), c)} ${held ? "in reserve this cycle — it is not lost, it releases in a later settlement" : "of previously-held reserve"}. This is a timing movement, not profit, so it is excluded from the figures above and explains part of the gap between your sales and your deposit.`]);
+    }
+    if (res.feeBreakdown && res.totals.fee) {
+      const fb = res.feeBreakdown;
+      const parts = [["referral", "Referral"], ["fulfillment", "FBA fulfillment"], ["storage", "Storage"], ["advertising", "Advertising"], ["otherFees", "Other fees"]]
+        .filter(([k]) => fb[k]).map(([k, l]) => `${l} ${money(fb[k], c)}`);
+      if (parts.length) alerts.push(["warn", `Where your fees went — ${parts.join(" · ")}.`]);
     }
     const neg = res.list.filter((o) => o.profit < 0 && o.units > 0);
     if (neg.length) alerts.push(["bad", `${neg.length} SKU(s) lose money after fees${res.totals.cogs ? " and COGS" : ""}: ${neg.slice(0, 5).map((o) => esc(o.sku)).join(", ")}${neg.length > 5 ? "…" : ""}.`]);

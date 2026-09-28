@@ -37,6 +37,12 @@ ok(res.list.length === 4, "4 skus incl advertising bucket, got " + res.list.leng
 const wbUnits = res.list.find((o) => o.sku === "WIDGET-BLUE").units;
 ok(wbUnits === 38, "WIDGET-BLUE net units = 40 sold - 2 refunded = 38, got " + wbUnits);
 ok(Math.abs(res.totals.profit - 164.58) < 0.01, "total net profit 164.58 (COGS on net units), got " + res.totals.profit.toFixed(2));
+const fb = res.feeBreakdown;
+ok(Math.abs(fb.referral + 233.82) < 0.01, "fee breakdown: referral -233.82, got " + fb.referral.toFixed(2));
+ok(Math.abs(fb.fulfillment + 439.6) < 0.01, "fee breakdown: FBA fulfillment -439.60, got " + fb.fulfillment.toFixed(2));
+ok(Math.abs(fb.storage + 22.5) < 0.01, "fee breakdown: storage -22.50, got " + fb.storage.toFixed(2));
+ok(Math.abs(fb.advertising + 71.3) < 0.01, "fee breakdown: advertising -71.30, got " + fb.advertising.toFixed(2));
+ok(Math.abs((fb.referral + fb.fulfillment + fb.storage + fb.advertising + fb.otherFees) - res.totals.fee) < 0.01, "fee breakdown sums to total fees");
 console.log("\nTotals:", { revenue: res.totals.revenue.toFixed(2), fees: res.totals.fee.toFixed(2), profit: res.totals.profit.toFixed(2) });
 
 // --- extended classify coverage (hardened parser) ---
