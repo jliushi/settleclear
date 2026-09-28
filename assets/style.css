@@ -53,6 +53,7 @@ main{max-width:1080px;margin:0 auto;padding:0 24px}
 .alert{background:color-mix(in srgb,var(--warn) 14%,var(--panel));border:1px solid var(--warn);
   border-radius:10px;padding:10px 14px;margin:8px 0;font-size:14px}
 .alert.bad{background:color-mix(in srgb,var(--bad) 14%,var(--panel));border-color:var(--bad)}
+.alert.ok{background:color-mix(in srgb,var(--good) 14%,var(--panel));border-color:var(--good)}
 .table-wrap{margin-top:20px}
 .table-bar{display:flex;gap:12px;margin-bottom:10px;flex-wrap:wrap}
 .table-bar input{flex:1;min-width:180px;background:var(--panel);border:1px solid var(--muted);

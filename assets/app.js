@@ -189,7 +189,7 @@
     const neg = res.list.filter((o) => o.profit < 0 && o.units > 0);
     if (neg.length) alerts.push(["bad", `${neg.length} SKU(s) lose money after fees${res.totals.cogs ? " and COGS" : ""}: ${neg.slice(0, 5).map((o) => esc(o.sku)).join(", ")}${neg.length > 5 ? "…" : ""}.`]);
     if (res.unclassified.length) alerts.push(["warn", `${res.unclassified.length} fee type(s) not in the standard map were bucketed as “other” (not silently dropped): ${res.unclassified.slice(0, 6).map(esc).join(", ")}.`]);
-    $("#alerts").innerHTML = alerts.map(([k, t]) => `<div class="alert ${k === "bad" ? "bad" : ""}">${t}</div>`).join("");
+    $("#alerts").innerHTML = alerts.map(([k, t]) => `<div class="alert ${k === "bad" ? "bad" : k === "ok" ? "ok" : ""}">${t}</div>`).join("");
     $("#alerts").hidden = !alerts.length;
 
     drawTable(res.list, res.currency);
