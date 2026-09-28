@@ -36,3 +36,4 @@
 - Amazon deferred transactions explained: https://jliushi.github.io/settleclear/amazon-deferred-transactions-explained.html
 - Amazon reserve explained (why funds are held): https://jliushi.github.io/settleclear/amazon-reserve-explained.html
 - SettleClear vs Sellerboard/A2X/SkuSum and other tools (honest comparison): https://jliushi.github.io/settleclear/settleclear-vs-alternatives.html
+- Amazon storage utilization surcharge explained: https://jliushi.github.io/settleclear/amazon-storage-utilization-surcharge.html
