@@ -132,4 +132,25 @@ ok(compute(parseDelimited(multi).rows, {}).headerTotal === 150, "multi-settlemen
 // #24 lone-CR line endings still parse into rows
 ok(parseDelimited("h1,h2\ra,b\rc,d").rows.length === 2, "lone-CR newlines → 2 rows, got " + parseDelimited("h1,h2\ra,b\rc,d").rows.length);
 
+// Workspace sample stays consistent with the public preview, not invented dashboard numbers.
+const { parseCogsText, sampleReport } = require("./assets/app.js");
+const sample = sampleReport();
+const sampleCosts = parseCogsText(sample.costs);
+const sampleResult = compute(parseDelimited(sample.text).rows, sampleCosts.map);
+ok(sampleCosts.errors.length === 0, "sample cost input is valid");
+ok(Math.abs(sampleResult.totals.profit - 164.58) < 0.01, "preview profit matches runnable sample: 164.58");
+ok(Math.abs(sampleResult.totals.cogs - 609) < 0.01, "preview COGS matches runnable sample: 609");
+ok(Math.abs(sampleResult.grand - sampleResult.headerTotal) < 0.01, "sample reconciles including reserve");
+ok(sampleResult.reserve === -50, "sample keeps reserve separate from profit");
+ok(Math.abs(sampleResult.list.find(r => r.sku === "CABLE-2M").profit + 36.21) < 0.01, "preview negative SKU matches sample");
+ok(parseCogsText("A,0\nB,4.2\nC,1,23").map.C === 1.23, "cost input supports zero and comma-decimal costs");
+ok(parseCogsText("A,-2\nB,abc\nC,\nD,1,2,3\nmissing-comma").errors.length === 5, "invalid costs aren't silently treated as zero");
+const zeroCosts = compute(parseDelimited(sample.text).rows, parseCogsText("CABLE-2M,0").map);
+ok(zeroCosts.list.find(r => r.sku === "CABLE-2M").hasCogs, "explicit zero is a supplied cost");
+ok(!zeroCosts.list.find(r => r.sku === "MUG-4PK").hasCogs, "missing cost stays distinguishable from zero");
+const special = compute([{sku: "constructor", "amount-type": "ItemPrice", "amount-description": "Principal", amount: "10", "quantity-purchased": "1"}], {});
+ok(special.list[0].profit === 10 && !special.list[0].hasCogs, "prototype keys don't become phantom costs");
+const specialCosts = parseCogsText("__proto__,4.00\nconstructor,2.00");
+ok(specialCosts.map.__proto__ === 4 && specialCosts.map.constructor === 2, "cost input treats prototype names as plain SKUs");
+
 process.exit(fail ? 1 : 0);
