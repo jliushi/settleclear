@@ -153,4 +153,10 @@ ok(special.list[0].profit === 10 && !special.list[0].hasCogs, "prototype keys do
 const specialCosts = parseCogsText("__proto__,4.00\nconstructor,2.00");
 ok(specialCosts.map.__proto__ === 4 && specialCosts.map.constructor === 2, "cost input treats prototype names as plain SKUs");
 
+const quotedCosts = parseCogsText('"BAD,SKU",4.20\n"A""B","3,50"');
+ok(quotedCosts.errors.length === 0 && quotedCosts.map['BAD,SKU'] === 4.2 && quotedCosts.map['A"B'] === 3.5, "quoted cost input preserves commas and escaped quotes in SKUs");
+ok(parseCogsText('"BAD,SKU,4.20').errors.length === 1, "unclosed quoted SKU is rejected");
+const quotedResult = compute(parseDelimited(injCsv).rows, quotedCosts.map);
+ok(Math.abs(quotedResult.list[0].profit - 5.8) < 0.01, "quoted comma-containing SKU receives its supplied cost");
+
 process.exit(fail ? 1 : 0);

@@ -100,6 +100,15 @@ def run(base):
             page.locator("#export").click()
         check(event.value.suggested_filename == "profit-by-sku.csv", "real report has regular export filename")
 
+        quoted_fixture = fixture.replace("MY-SKU", '"BAD,SKU"')
+        page.locator("#file").set_input_files({"name": "quoted.csv", "mimeType": "text/csv", "buffer": quoted_fixture.encode()})
+        expect(page.locator("#results")).to_be_visible()
+        page.locator("#cogs summary").click()
+        page.locator("#cogsInput").fill('"BAD,SKU",4.20')
+        page.locator("#apply").click()
+        expect(page.locator("#summary .featured .v")).to_have_text("$81.60")
+        check(True, "quoted comma-containing SKUs receive their costs in the browser")
+
         page.locator("#file").set_input_files({"name": "wrong.csv", "mimeType": "text/csv", "buffer": b'name,age\nA,1'})
         expect(page.locator("#importError")).to_be_visible()
         expect(page.locator("#results")).to_be_hidden()

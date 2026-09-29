@@ -143,8 +143,15 @@
     const map = Object.create(null), errors = [];
     String(text || "").split("\n").forEach((line, index) => {
       if (!line.trim()) return;
-      const comma = line.indexOf(","), sku = line.slice(0, comma).trim();
-      const cost = line.slice(comma + 1).trim();
+      const comma = line.indexOf(",");
+      let sku = line.slice(0, comma).trim(), cost = line.slice(comma + 1).trim();
+      if (line.trim().startsWith('"')) {
+        const quoted = /^\s*"((?:[^"]|"")*)"\s*,\s*(.*?)\s*$/.exec(line);
+        if (!quoted) { errors.push(index + 1); return; }
+        sku = quoted[1].replace(/""/g, '"').trim();
+        cost = quoted[2];
+      }
+      if (/^".*"$/.test(cost)) cost = cost.slice(1, -1).trim();
       if (comma < 1 || !sku || !/^\d+(?:[.,]\d+)?$/.test(cost) || !Number.isFinite(num(cost))) {
         errors.push(index + 1);
       } else map[sku] = num(cost);
