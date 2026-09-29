@@ -41,7 +41,7 @@ def run(base):
             json.loads(schema)
         check(True, "structured data parses")
 
-        page.get_by_role("button", name="Explore a sample").click()
+        page.get_by_role("button", name="Try it with sample data").click()
         expect(page.locator("#sampleNotice")).to_be_visible()
         expect(page.locator("#summary .featured .v")).to_have_text("$164.58")
         expect(page.locator("#table tbody tr")).to_have_count(4)
