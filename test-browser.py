@@ -3,6 +3,7 @@ import csv
 import io
 import json
 import os
+import re
 import threading
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -11,6 +12,9 @@ from pathlib import Path
 from playwright.sync_api import expect, sync_playwright
 
 ROOT = Path(__file__).resolve().parent
+RUM = re.compile(r"^https://cloudflareinsights\.com/cdn-cgi/rum")
+# Strings that exist only inside the sample or uploaded test reports.
+REPORT_MARKERS = ("MY-SKU", "CABLE-2M", "BAD,SKU", "onerror", "164.58", "773.58", "723.58", "1558.80")
 
 
 class QuietHandler(SimpleHTTPRequestHandler):
@@ -28,10 +32,13 @@ def run(base):
         browser = p.chromium.launch(headless=True)
         context = browser.new_context(viewport={"width": 1440, "height": 1000}, reduced_motion="reduce")
         page = context.new_page()
-        errors, uploads = [], []
+        errors, uploads, beacons = [], [], []
+        # Page-view analytics: capture beacon payloads locally and never forward them, so test runs
+        # neither pollute real stats nor go unchecked.
+        context.route(RUM, lambda route: (beacons.append(route.request.post_data or ""), route.fulfill(status=204)))
         page.on("pageerror", lambda error: errors.append(str(error)))
         page.on("console", lambda message: errors.append(message.text) if message.type == "error" else None)
-        page.on("request", lambda request: uploads.append(request.url) if request.method != "GET" else None)
+        page.on("request", lambda request: uploads.append(request.url) if request.method != "GET" and not RUM.match(request.url) else None)
         response = page.goto(base, wait_until="networkidle")
         check(response.status == 200, "homepage responds successfully")
         expect(page.locator("#results")).to_be_hidden()
@@ -137,6 +144,8 @@ def run(base):
         check(bool(event.value.path()), "analysis and export work offline")
         context.set_offline(False)
         check(not uploads, "no POST/upload requests during imports or analysis")
+        leaked = [m for m in REPORT_MARKERS for b in beacons if m in b]
+        check(not leaked, f"analytics beacons ({len(beacons)}) carry no report data: {leaked!r}")
 
         for width in (320, 390, 768, 1024, 1440):
             page.set_viewport_size({"width": width, "height": 900})

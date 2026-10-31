@@ -8,7 +8,7 @@ Live: **https://jliushi.github.io/settleclear/**
 A payout isn't a profit statement. SettleClear separates the revenue, fees, promotions and account-level movements present in the report, lets you add unit costs, and highlights rows worth reviewing. Missing unit costs, unmapped amounts and reserve movements stay explicit; separately billed ads, overhead and other absent costs are not included.
 
 ## Privacy
-There is no backend. Your settlement file is parsed in your browser and never uploaded. You can go offline after the page loads and it still works.
+There is no backend. Your settlement file is parsed in your browser and never uploaded. You can go offline after the page loads and it still works. Page views are counted with [Cloudflare Web Analytics](https://www.cloudflare.com/web-analytics/), which sets no cookies and does not fingerprint visitors; it never receives your file or any numbers from it.
 
 ## Develop
 Pure static site — no build step. Open `index.html` in a browser, or serve the folder:
